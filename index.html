@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DziałkiEkspres - Dodaj darmowe ogłoszenie</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="https://files.cdn.thinkific.com/file_uploads/1010971/images/032/d7f/5ec/1010971_custom_site_themes_id_OzVLWf0AQZWNmpvP9uJr_Logo.png">
+  
+  <style>
+    :root {
+      --primary: #1e6fba;
+      --primary-dark: #155d9d;
+      --secondary: #2c8ac9;
+      --accent: #3ba3e3;
+      --dark: #1e293b;
+      --darker: #0f172a;
+      --light: #f0f8ff;
+      --gray: #7b9cba;
+      --success: #2e94cc;
+      
+      --gradient-primary: linear-gradient(135deg, #1e6fba, #2c8ac9);
+      --gradient-accent: linear-gradient(135deg, #3ba3e3, #2c8ac9);
+      --gradient-card: linear-gradient(135deg, #ffffff, #e6f2ff);
+      
+      --shadow-sm: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+      --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+      
+      --radius: 10px;
+      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      color: var(--dark);
+      background-color: var(--light);
+      line-height: 1.5;
+      overflow-x: hidden;
+      font-size: 0.95rem;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 0.875rem;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+    }
+
+    h2 {
+      font-size: 2rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    p {
+      margin-bottom: 1.25rem;
+      font-size: 0.95rem;
+    }
+
+    a {
+      color: var(--primary);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 0 1.25rem;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 0.75rem 1.5rem;
+      border-radius: var(--radius);
+      font-weight: 600;
+      transition: var(--transition);
+      border: none;
+      cursor: pointer;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .btn-primary {
+      background: var(--gradient-primary);
+      color: white;
+      box-shadow: var(--shadow-md);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-secondary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .btn-accent {
+      background: var(--gradient-accent);
+      color: white;
+    }
+
+    .btn-outline-primary {
+      background: transparent;
+      color: var(--primary);
+      border: 2px solid var(--primary);
+    }
+
+    .btn-outline-primary:hover {
+      background: var(--primary);
+      color: white;
+    }
+
+    .section {
+      padding: 3.5rem 0;
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .section-title h2 {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 1.25rem;
+    }
+
+    .section-title h2::after {
+      content: '';
+      position: absolute;
+      bottom: -8px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 50px;
+      height: 3px;
+      background: var(--gradient-primary);
+      border-radius: 2px;
+    }
+
+    /* Top Navbar */
+    .top-navbar {
+      background: #fff;
+      color: var(--dark);
+      padding: 0.4rem 0;
+      font-size: 0.85rem;
+      border-bottom: 1px solid #eee;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      z-index: 1100;
+    }
+    
+    .top-navbar-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Header */
+    header {
+      position: fixed;
+      top: 40px;
+      left: 0;
+      width: 100%;
+      z-index: 1000;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      padding: 0.875rem 0;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+      color: var(--darker);
+    }
+
+    .logo img {
+      height: 32px;
+      width: auto;
+    }
+
+    .nav-menu {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .nav-link {
+      font-weight: 500;
+      color: var(--dark);
+      position: relative;
+      font-size: 0.95rem;
+    }
+
+    .nav-link::after {
+      content: '';
+      position: absolute;
+      bottom: -5px;
+      left: 0;
+      width: 0;
+      height: 2px;
+      background: var(--gradient-primary);
+      transition: var(--transition);
+    }
+
+    .nav-link:hover::after {
+      width: 100%;
+    }
+
+    .mobile-menu-btn {
+      display: none;
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    /* Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1100;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 2rem;
+      border-radius: var(--radius);
+      width: 90%;
+      max-width: 400px;
+      box-shadow: var(--shadow-lg);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--dark);
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: var(--radius);
+      font-size: 0.95rem;
+    }
+
+    .form-footer {
+      margin-top: 1.5rem;
+      text-align: center;
+      font-size: 0.9rem;
+    }
+
+    /* User Dashboard */
+    .user-dashboard {
+      display: none;
+      margin-top: 120px;
+      margin-bottom: 20px;
+      padding: 2rem;
+      background: white;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-md);
+    }
+
+    .user-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+
+    .offers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .offer-card {
+      background: var(--gradient-card);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+    }
+
+    .offer-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .offer-title {
+      font-size: 1.2rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .offer-details {
+      color: var(--gray);
+      font-size: 0.9rem;
+      margin-bottom: 1rem;
+    }
+
+    .offer-actions {
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .btn-sm {
+      padding: 0.5rem 1rem;
+      font-size: 0.85rem;
+    }
+
+    /* Hero Section */
+    .hero {
+      padding: 10rem 0 4rem;
+      background: linear-gradient(135deg, rgba(30, 111, 186, 0.05) 0%, rgba(44, 138, 201, 0.05) 100%);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      right: -80px;
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      opacity: 0.1;
+      filter: blur(60px);
+    }
+
+    .hero-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2.5rem;
+      align-items: center;
+    }
+
+    .hero-text h1 {
+      font-size: 2.5rem;
+      margin-bottom: 1.25rem;
+      background: var(--gradient-primary);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-text p {
+      font-size: 1.1rem;
+      color: var(--gray);
+      margin-bottom: 2rem;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 0.875rem;
+      flex-wrap: wrap;
+    }
+
+    .hero-image {
+      position: relative;
+    }
+
+    .hero-image img {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+      transform: perspective(800px) rotateY(-10deg);
+      transition: var(--transition);
+    }
+
+    .hero-image img:hover {
+      transform: perspective(800px) rotateY(0);
+    }
+
+    /* Features */
+    .features {
+      background: white;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1.75rem;
+    }
+
+    .feature-card {
+      background: var(--gradient-card);
+      padding: 1.75rem;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      text-align: center;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .feature-icon {
+      width: 55px;
+      height: 55px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.25rem;
+      border-radius: 50%;
+      background: var(--gradient-primary);
+      color: white;
+      font-size: 1.5rem;
+    }
+
+    /* Course Info */
+    .course-info {
+      background: linear-gradient(135deg, rgba(30, 111, 186, 0.05) 0%, rgba(44, 138, 201, 0.05) 100%);
+    }
+
+    .info-container {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .info-image {
+      position: relative;
+    }
+
+    .info-image img {
+      width: 100%;
+      max-width: 450px;
+      height: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .info-badge {
+      position: absolute;
+      top: -12px;
+      right: -12px;
+      background: var(--gradient-primary);
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border-radius: 25px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      font-size: 0.85rem;
+    }
+
+    .info-content h2 {
+      margin-bottom: 1.25rem;
+    }
+
+    .info-list {
+      list-style: none;
+      margin-bottom: 1.75rem;
+    }
+
+    .info-list li {
+      margin-bottom: 0.625rem;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      font-size: 0.95rem;
+    }
+
+    .info-list li::before {
+      content: '✓';
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px;
+      height: 20px;
+      background: var(--success);
+      color: white;
+      border-radius: 50%;
+      font-size: 0.7rem;
+    }
+
+    /* Instructor */
+    .instructor {
+      background: white;
+    }
+
+    .instructor-container {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 3.5rem;
+      align-items: center;
+    }
+
+    .instructor-image {
+      position: relative;
+    }
+
+    .instructor-image img {
+      width: 100%;
+      max-width: 300px;
+      height: auto;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .instructor-badge {
+      position: absolute;
+      bottom: -12px;
+      left: -12px;
+      background: var(--gradient-primary);
+      color: white;
+      padding: 0.625rem 1.25rem;
+      border-radius: 25px;
+      font-weight: 600;
+      box-shadow: var(--shadow-md);
+      font-size: 0.85rem;
+    }
+
+    .instructor-bio h2 {
+      margin-bottom: 1.25rem;
+    }
+
+    .social-links {
+      display: flex;
+      gap: 0.875rem;
+      margin-top: 1.25rem;
+    }
+
+    .social-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--light);
+      color: var(--dark);
+      transition: var(--transition);
+    }
+
+    .social-link:hover {
+      background: var(--primary);
+      color: white;
+      transform: translateY(-3px);
+    }
+
+    /* FAQ */
+    .faq {
+      background: linear-gradient(135deg, rgba(30, 111, 186, 0.05) 0%, rgba(44, 138, 201, 0.05) 100%);
+    }
+
+    .faq-container {
+      max-width: 750px;
+      margin: 0 auto;
+    }
+
+    .faq-item {
+      margin-bottom: 1.25rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+      background: white;
+    }
+
+    .faq-question {
+      padding: 1.25rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      transition: var(--transition);
+      font-size: 0.95rem;
+    }
+
+    .faq-question:hover {
+      color: var(--primary);
+    }
+
+    .faq-question i {
+      transition: var(--transition);
+    }
+
+    .faq-answer {
+      padding: 0 1.25rem;
+      max-height: 0;
+      overflow: hidden;
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+
+    .faq-item.active .faq-question i {
+      transform: rotate(180deg);
+    }
+
+    .faq-item.active .faq-answer {
+      padding: 0 1.25rem 1.25rem;
+      max-height: 500px;
+    }
+
+    /* CTA */
+    .cta {
+      background: var(--gradient-primary);
+      color: white;
+      text-align: center;
+      padding: 5rem 0;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .cta::before {
+      content: '';
+      position: absolute;
+      top: -80px;
+      left: -80px;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .cta::after {
+      content: '';
+      position: absolute;
+      bottom: -80px;
+      right: -80px;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.1);
+    }
+
+    .cta h2 {
+      margin-bottom: 1.25rem;
+    }
+
+    .cta p {
+      max-width: 550px;
+      margin: 0 auto 2rem;
+      opacity: 0.9;
+    }
+
+    /* Footer */
+    footer {
+      background: var(--darker);
+      color: white;
+      padding: 4rem 0 1.75rem;
+    }
+
+    .footer-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2.5rem;
+      margin-bottom: 2.5rem;
+    }
+
+    .footer-logo {
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      margin-bottom: 1.25rem;
+      font-weight: 700;
+      font-size: 1.25rem;
+    }
+
+    .footer-logo img {
+      height: 32px;
+      width: auto;
+    }
+
+    .footer-about p {
+      opacity: 0.7;
+      margin-bottom: 1.25rem;
+      font-size: 0.9rem;
+    }
+
+    .footer-links h3,
+    .footer-contact h3 {
+      margin-bottom: 1.25rem;
+      position: relative;
+      display: inline-block;
+      font-size: 1.1rem;
+    }
+
+    .footer-links h3::after,
+    .footer-contact h3::after {
+      content: '';
+      position: absolute;
+      bottom: -6px;
+      left: 0;
+      width: 25px;
+      height: 2px;
+      background: var(--gradient-primary);
+      border-radius: 2px;
+    }
+
+    .footer-links ul {
+      list-style: none;
+    }
+
+    .footer-links li {
+      margin-bottom: 0.625rem;
+    }
+
+    .footer-links a {
+      color: var(--gray);
+      transition: var(--transition);
+      font-size: 0.9rem;
+    }
+
+    .footer-links a:hover {
+      color: white;
+      padding-left: 5px;
+    }
+
+    .footer-contact p {
+      margin-bottom: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 0.625rem;
+      opacity: 0.7;
+      font-size: 0.9rem;
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: 1.75rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.1);
+      opacity: 0.7;
+      font-size: 0.85rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+      h1 {
+        font-size: 2.25rem;
+      }
+      
+      h2 {
+        font-size: 1.75rem;
+      }
+      
+      .hero-content,
+      .info-container,
+      .instructor-container {
+        grid-template-columns: 1fr;
+        gap: 2.5rem;
+      }
+      
+      .hero-text {
+        order: 2;
+        text-align: center;
+      }
+      
+      .hero-image {
+        order: 1;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .nav-menu {
+        position: fixed;
+        top: 110px;
+        left: 0;
+        width: 100%;
+        flex-direction: column;
+        background: white;
+        padding: 1.75rem;
+        box-shadow: var(--shadow-md);
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+        transition: var(--transition);
+      }
+      
+      .nav-menu.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+      }
+      
+      .mobile-menu-btn {
+        display: block;
+      }
+      
+      .hero {
+        padding: 8rem 0 2.5rem;
+      }
+      
+      .hero-text h1 {
+        font-size: 2rem;
+      }
+      
+      .hero-buttons {
+        justify-content: center;
+      }
+      
+      .top-navbar-container {
+        justify-content: center;
+      }
+    }
+
+    @media (max-width: 576px) {
+      .section {
+        padding: 2.5rem 0;
+      }
+      
+      .hero-text h1 {
+        font-size: 1.75rem;
+      }
+      
+      .btn {
+        width: 100%;
+        justify-content: center;
+      }
+      
+      .hero-buttons {
+        flex-direction: column;
+      }
+      
+      header {
+        top: 70px;
+      }
+    }
+
+    /* Animations */
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .fade-in {
+      animation: fadeIn 1s ease forwards;
+    }
+
+    .delay-1 {
+      animation-delay: 0.2s;
+    }
+
+    .delay-2 {
+      animation-delay: 0.4s;
+    }
+
+    .delay-3 {
+      animation-delay: 0.6s;
+    }
+
+    /* Social login buttons */
+    .social-login {
+      margin-top: 1.5rem;
+      text-align: center;
+    }
+    
+    .social-login .btn {
+      margin-bottom: 0.75rem;
+      width: 100%;
+      justify-content: center;
+    }
+    
+    .btn-google {
+      background: #DB4437;
+      color: white;
+      border: none;
+    }
+    
+    .btn-google:hover {
+      background: #c23325;
+      color: white;
+    }
+    
+    .btn-facebook {
+      background: #4267B2;
+      color: white;
+      border: none;
+    }
+    
+    .btn-facebook:hover {
+      background: #365899;
+      color: white;
+    }
+    
+    .domain-warning {
+      display: none;
+      background: #ffebee;
+      color: #c62828;
+      padding: 10px;
+      border-radius: 5px;
+      margin-top: 15px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Navbar -->
+  <div class="top-navbar">
+    <div class="container top-navbar-container">
+      <div class="contact-info">
+        <i class="fas fa-clock me-2"></i> Poniedziałek - Piątek 9:00 - 18:00
+        <span class="ms-4"><i class="fas fa-phone me-2"></i> +48 505 849 404</span>
+      </div>
+      
+      <div class="auth-buttons" id="authButtons">
+        <button class="btn btn-outline-primary me-2" id="loginBtn">
+          <i class="fas fa-sign-in-alt me-1"></i> Zaloguj się
+        </button>
+        <button class="btn btn-primary" id="registerBtn">
+          <i class="fas fa-user-plus me-1"></i> Zarejestruj się
+        </button>
+      </div>
+      <div class="user-menu" id="userMenu" style="display: none;">
+        <button class="btn btn-outline-primary me-2" id="accountBtn">
+          <i class="fas fa-user me-1"></i> Moje konto
+        </button>
+        <a href="dodaj.html" class="btn btn-primary" id="addOfferBtn">
+          <i class="fas fa-plus me-1"></i> Dodaj ofertę
+        </a>
+        <button class="btn btn-secondary" id="logoutBtn">
+          <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-container">
+      <a href="index.html" class="logo">
+        <img src="https://import.cdn.thinkific.com/1010971%2Fcustom_site_themes%2Fid%2FOzVLWf0AQZWNmpvP9uJr_Logo.png" alt="DziałkiEkspres">
+        <span>DziałkiEkspres</span>
+      </a>
+      
+      <nav class="nav-menu">
+        <a href="index.html" class="nav-link">Strona główna</a>
+        <a href="oferty.html" class="nav-link">Oferty</a>
+        <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+        <a href="#contact" class="nav-link">Kontakt</a>
+      </nav>
+      
+      <button class="mobile-menu-btn">
+        <i class="fas fa-bars"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- Login Modal -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Zaloguj się</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Hasło</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Zaloguj się</button>
+      </form>
+      <div class="form-footer">
+        <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Utwórz konto</h3>
+        <button class="modal-close">&times;</button>
+      </div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="registerName">Imię i nazwisko</label>
+          <input type="text" id="registerName" required>
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Hasło</label>
+          <input type="password" id="registerPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="registerConfirmPassword">Potwierdź hasło</label>
+          <input type="password" id="registerConfirmPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%;">Zarejestruj się</button>
+      </form>
+	  
+      <div class="social-login mt-3 text-center">
+        <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
+          <i class="fab fa-google me-1"></i> Zaloguj przez Google
+        </button>
+        <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
+          <i class="fab fa-facebook-f me-1"></i> Zaloguj przez Facebook
+        </button>
+      </div>
+      
+      <div class="domain-warning" id="domainWarning">
+        <i class="fas fa-exclamation-triangle"></i> 
+        Uwaga: Logowanie przez Facebook może nie działać na tej domenie. 
+        Aby rozwiązać ten problem, dodaj swoją domenę w ustawieniach Firebase.
+      </div>
+	  
+      <div class="form-footer">
+        <p>Masz już konto? <a href="#" id="switchToLogin">Zaloguj się</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- User Dashboard -->
+  <div class="container user-dashboard" id="userDashboard">
+    <div class="user-header">
+      <h2>Moje oferty</h2>
+      <a href="dodaj.html" class="btn btn-primary" id="dashboardAddOffer">
+        <i class="fas fa-plus me-1"></i> Dodaj ofertę
+      </a>
+    </div>
+    <div class="offers-grid" id="userOffers">
+      <!-- Offers will be loaded here dynamically -->
+    </div>
+  </div>
+
+  <!-- Hero Section -->
+  <section class="hero" id="home">
+    <div class="container hero-content">
+      <div class="hero-text fade-in">
+        <h1>Znajdź swoją wymarzoną działkę</h1>
+        <p>Dodaj bezpłatne ogłoszenie lub przeglądaj oferty idealnych działek w najlepszych lokalizacjach w Polsce.</p>
+        <div class="hero-buttons">
+          <a href="oferty.html" class="btn btn-primary"><i class="fas fa-search"></i> Przeglądaj oferty</a>
+          <a href="dodaj.html" class="btn btn-secondary" id="heroAddOffer"><i class="fas fa-plus"></i> Dodaj ogłoszenie</a>
+        </div>
+      </div>
+      <div class="hero-image fade-in delay-1">
+        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Działka">
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Section -->
+  <section id="features" class="section features">
+    <div class="container">
+      <div class="section-title">
+        <h2>Dlaczego warto wybrać DziałkiEkspres?</h2>
+        <p>Skuteczna sprzedaż działek bez zbędnych kosztów</p>
+      </div>
+      
+      <div class="features-grid">
+        <div class="feature-card fade-in">
+          <div class="feature-icon">
+            <i class="fas fa-chart-line"></i>
+          </div>
+          <h3>Analiza rynkowa</h3>
+          <p>Darmowa analiza wartości Twojej działki na podstawie aktualnych danych rynkowych.</p>
+        </div>
+        
+        <div class="feature-card fade-in delay-1">
+          <div class="feature-icon">
+            <i class="fas fa-users"></i>
+          </div>
+          <h3>Szeroki zasięg</h3>
+          <p>Dotrzyj do tysięcy potencjalnych kupujących w całej Polsce.</p>
+        </div>
+        
+        <div class="feature-card fade-in delay-2">
+          <div class="feature-icon">
+            <i class="fas fa-euro-sign"></i>
+          </div>
+          <h3>Zero opłat</h3>
+          <p>Dodawanie i przeglądanie ogłoszeń jest całkowicie darmowe.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works Section -->
+  <section id="how-it-works" class="section course-info">
+    <div class="container">
+      <div class="info-container">
+        <div class="info-image fade-in">
+          <img src="https://files.cdn.thinkific.com/file_uploads/1010971/images/2fe/9ae/bbf/new2.png" alt="Jak działa DziałkiEkspres">
+          <div class="info-badge">Proste i szybkie</div>
+        </div>
+        
+        <div class="info-content fade-in delay-1">
+          <h2>Jak to działa?</h2>
+          <ul class="info-list">
+            <li>Dodajesz numer działki i podstawowe informacje</li>
+            <li>Nasi eksperci przygotowują analizę i ogłoszenie</li>
+            <li>W ciągu 48 godzin Twoja oferta jest online</li>
+            <li>Kontaktujesz się z zainteresowanymi kupującymi</li>
+            <li>Finalizujesz transakcję bez pośredników</li>
+          </ul>
+          <a href="dodaj.html" class="btn btn-primary">
+            <i class="fas fa-plus-circle"></i> Dodaj ogłoszenie
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section id="faq" class="section faq">
+    <div class="container">
+      <div class="section-title">
+        <h2>Często zadawane pytania</h2>
+        <p>Znajdź odpowiedzi na najczęstsze pytania</p>
+      </div>
+      
+      <div class="faq-container">
+        <div class="faq-item fade-in">
+          <div class="faq-question">
+            <span>Ile kosztuje dodanie ogłoszenia?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Dodanie ogłoszenia jest całkowicie darmowe. Nie pobieramy żadnych opłat ani prowizji.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item fade-in delay-1">
+          <div class="faq-question">
+            <span>Jak długo ogłoszenie jest aktywne?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Ogłoszenie jest aktywne przez 90 dni. Po tym czasie możesz je bezpłatnie przedłużyć.</p>
+          </div>
+        </div>
+        
+        <div class="faq-item fade-in delay-2">
+          <div class="faq-question">
+            <span>Czy potrzebuję dokumentów własności?</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>Do dodania ogłoszenia nie potrzebujesz dokumentów. Będą one konieczne dopiero przy finalizacji transakcji.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  
+  <!-- CTA Section -->
+  <section class="cta">
+    <div class="container">
+      <h2 class="fade-in">Gotowy, aby sprzedać swoją działkę?</h2>
+      <p class="fade-in delay-1">Dołącz do tysięcy zadowolonych sprzedających i kupujących</p>
+      <a href="dodaj.html" class="btn btn-primary">
+        <i class="fas fa-plus-circle"></i> Dodaj bezpłatne ogłoszenie
+      </a>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer id="contact">
+    <div class="container">
+      <div class="footer-container">
+        <div class="footer-about">
+          <a href="#" class="footer-logo">
+            <img src="https://import.cdn.thinkific.com/1010971%2Fcustom_site_themes%2Fid%2FOzVLWf0AQZWNmpvP9uJr_Logo.png" alt="DziałkiEkspres">
+            <span>DziałkiEkspres</span>
+          </a>
+          <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
+        </div>
+        
+        <div class="footer-links">
+          <h3>Przydatne linki</h3>
+          <ul>
+            <li><a href="#home">Strona główna</a></li>
+            <li><a href="#features">Dlaczego my</a></li>
+            <li><a href="#how-it-works">Jak to działa</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div>
+        
+        <div class="footer-contact">
+          <h3>Kontakt</h3>
+          <p><i class="fas fa-envelope"></i> info@dzialkiekspres.pl</p>
+          <p><i class="fas fa-phone"></i> +48 123 456 789</p>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>© 2025 DziałkiEkspres. Wszelkie prawa zastrzeżone.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Firebase SDK -->
+  <script type="module">
+    // Import the functions you need from the SDKs you need
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
+    import { 
+      getAuth, 
+      createUserWithEmailAndPassword, 
+      signInWithEmailAndPassword, 
+      signOut, 
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      FacebookAuthProvider,
+      signInWithPopup,
+      updateProfile
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
+    import { 
+      getFirestore, 
+      collection, 
+      addDoc, 
+      query, 
+      where, 
+      getDocs, 
+      doc, 
+      setDoc,
+      getDoc 
+    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+
+    // Your web app's Firebase configuration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
+      authDomain: "base-468e0.firebaseapp.com",
+      projectId: "base-468e0",
+      storageBucket: "base-468e0.firebasestorage.app",
+      messagingSenderId: "829161895559",
+      appId: "1:829161895559:web:d832541aac05b35847ea22"
+    };
+
+    // Initialize Firebase
+    const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
+
+    // PROVIDERS
+    const googleProvider = new GoogleAuthProvider();
+    const facebookProvider = new FacebookAuthProvider();
+
+    // DOM Elements
+    const authButtons = document.getElementById('authButtons');
+    const userMenu = document.getElementById('userMenu');
+    const loginBtn = document.getElementById('loginBtn');
+    const registerBtn = document.getElementById('registerBtn');
+    const accountBtn = document.getElementById('accountBtn');
+    const addOfferBtn = document.getElementById('addOfferBtn');
+    const logoutBtn = document.getElementById('logoutBtn');
+    const loginModal = document.getElementById('loginModal');
+    const registerModal = document.getElementById('registerModal');
+    const closeModalButtons = document.querySelectorAll('.modal-close');
+    const switchToRegister = document.getElementById('switchToRegister');
+    const switchToLogin = document.getElementById('switchToLogin');
+    const loginForm = document.getElementById('loginForm');
+    const registerForm = document.getElementById('registerForm');
+    const userDashboard = document.getElementById('userDashboard');
+    const userOffers = document.getElementById('userOffers');
+    const heroAddOffer = document.getElementById('heroAddOffer');
+    const dashboardAddOffer = document.getElementById('dashboardAddOffer');
+    const googleLoginBtn = document.getElementById('googleLoginBtn');
+    const facebookLoginBtn = document.getElementById('facebookLoginBtn');
+    const domainWarning = document.getElementById('domainWarning');
+
+    // Check if we're on an authorized domain
+    function checkAuthorizedDomain() {
+      const currentDomain = window.location.hostname;
+      const authorizedDomains = [
+        'base-468e0.firebaseapp.com',
+        'localhost',
+        '127.0.0.1'
+      ];
+      
+      // Add your custom domain here once you configure it in Firebase
+      // authorizedDomains.push('twojadomena.pl');
+      
+      if (!authorizedDomains.includes(currentDomain)) {
+        domainWarning.style.display = 'block';
+        console.warn('Uwaga: Obecna domena nie jest autoryzowana w Firebase. Logowanie przez Facebook może nie działać.');
+      }
+    }
+
+    // Check auth state
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        // User is signed in
+        authButtons.style.display = 'none';
+        userMenu.style.display = 'flex';
+        accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${user.displayName || user.email}`;
+        userDashboard.style.display = 'block';
+        loadUserOffers(user.email);
+        
+        // Automatycznie zamknij modale po zalogowaniu
+        closeModal(loginModal);
+        closeModal(registerModal);
+      } else {
+        // User is signed out
+        authButtons.style.display = 'flex';
+        userMenu.style.display = 'none';
+        userDashboard.style.display = 'none';
+      }
+    });
+
+    // Open modals
+    loginBtn.addEventListener('click', () => openModal(loginModal));
+    registerBtn.addEventListener('click', () => {
+      openModal(registerModal);
+      checkAuthorizedDomain(); // Sprawdź domenę przy rejestracji
+    });
+    switchToRegister.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeModal(loginModal);
+      openModal(registerModal);
+      checkAuthorizedDomain(); // Sprawdź domenę przy rejestracji
+    });
+    switchToLogin.addEventListener('click', (e) => {
+      e.preventDefault();
+      closeModal(registerModal);
+      openModal(loginModal);
+    });
+
+    // Close modals
+    closeModalButtons.forEach(button => {
+      button.addEventListener('click', () => {
+        const modal = button.closest('.modal');
+        closeModal(modal);
+      });
+    });
+
+    // Close modal when clicking outside
+    window.addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) {
+        closeModal(e.target);
+      }
+    });
+
+    // Login form
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+        console.log('User logged in successfully');
+      } catch (error) {
+        alert('Błąd logowania: ' + error.message);
+      }
+    });
+
+    // Register form
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value;
+      const email = document.getElementById('registerEmail').value;
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Hasła nie są identyczne!');
+        return;
+      }
+
+      try {
+        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        const user = userCredential.user;
+        
+        // Update profile with name
+        await updateProfile(user, { displayName: name });
+        
+        // Create user profile in Firestore
+        await setDoc(doc(db, "users", user.uid), {
+          name: name,
+          email: email,
+          createdAt: new Date()
+        });
+        
+        console.log('User registered successfully');
+      } catch (error) {
+        alert('Błąd rejestracji: ' + error.message);
+      }
+    });
+
+    // Google login
+    googleLoginBtn.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, googleProvider);
+        const user = result.user;
+        
+        // Check if user exists in Firestore, if not create a record
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, "users", user.uid), {
+            name: user.displayName,
+            email: user.email,
+            createdAt: new Date(),
+            provider: "google"
+          });
+        }
+        
+        console.log('Zalogowano przez Google:', user);
+      } catch (error) {
+        console.error("Błąd logowania przez Google:", error);
+        alert('Błąd logowania przez Google: ' + error.message);
+      }
+    });
+
+    // Facebook login with error handling for unauthorized domain
+    facebookLoginBtn.addEventListener('click', async () => {
+      try {
+        const result = await signInWithPopup(auth, facebookProvider);
+        const user = result.user;
+        
+        // Check if user exists in Firestore, if not create a record
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (!userDoc.exists()) {
+          await setDoc(doc(db, "users", user.uid), {
+            name: user.displayName,
+            email: user.email,
+            createdAt: new Date(),
+            provider: "facebook"
+          });
+        }
+        
+        console.log('Zalogowano przez Facebook:', user);
+      } catch (error) {
+        console.error("Błąd logowania przez Facebook:", error);
+        
+        if (error.code === 'auth/unauthorized-domain') {
+          alert('Logowanie przez Facebook nie jest dostępne na tej domenie. Skontaktuj się z administratorem, aby dodać domenę do konfiguracji Firebase.');
+        } else {
+          alert('Błąd logowania przez Facebook: ' + error.message);
+        }
+      }
+    });
+
+    // Logout
+    logoutBtn.addEventListener('click', () => {
+      signOut(auth);
+    });
+
+    // Account button
+    accountBtn.addEventListener('click', () => {
+      userDashboard.scrollIntoView({ behavior: 'smooth' });
+    });
+
+    // Modal functions
+    function openModal(modal) {
+      modal.style.display = 'flex';
+    }
+
+    function closeModal(modal) {
+      modal.style.display = 'none';
+      // Reset form fields when closing modal
+      if (modal === loginModal) {
+        loginForm.reset();
+      } else if (modal === registerModal) {
+        registerForm.reset();
+      }
+    }
+
+    // Load user offers
+    async function loadUserOffers(email) {
+      try {
+        const q = query(collection(db, "propertyListings"), where("email", "==", email));
+        const querySnapshot = await getDocs(q);
+        
+        userOffers.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+          userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>';
+          return;
+        }
+        
+        querySnapshot.forEach((doc) => {
+          const offer = doc.data();
+          const offerElement = document.createElement('div');
+          offerElement.classList.add('offer-card');
+          offerElement.innerHTML = `
+            <h3 class="offer-title">${offer.city || 'Brak tytułu'}</h3>
+            <div class="offer-details">
+              <p><strong>Lokalizacja:</strong> ${offer.city || 'Nie podano'}</p>
+              <p><strong>Cena całkowita:</strong> ${plot.price || 'Nie podano'} zł <span style="color: #888; font-size: 0.85em; margin-left: 5px;">${pricePerM2} zł/m²</span></p>
+              <p><strong>Powierzchnia:</strong> ${
+                offer.plots && offer.plots.length > 0 
+                  ? offer.plots.reduce((sum, p) => sum + (p.pow_dzialki_m2__c || 0), 0).toLocaleString('pl-PL') 
+                  : 'Nie podano'
+              } m²</p>
+            </div>
+            <div class="offer-actions">
+              <button class="btn btn-primary btn-sm">Edytuj</button>
+              <button class="btn btn-secondary btn-sm">Usuń</button>
+            </div>
+          `;
+          userOffers.appendChild(offerElement);
+        });
+      } catch (error) {
+        console.error("Error loading offers: ", error);
+        userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
+      }
+    }
+
+    // Mobile menu toggle
+    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+    const navMenu = document.querySelector('.nav-menu');
+    
+    mobileMenuBtn.addEventListener('click', () => {
+      navMenu.classList.toggle('active');
+      mobileMenuBtn.innerHTML = navMenu.classList.contains('active') 
+        ? '<i class="fas fa-times"></i>' 
+        : '<i class="fas fa-bars"></i>';
+    });
+    
+    // FAQ accordion
+    const faqItems = document.querySelectorAll('.faq-item');
+    
+    faqItems.forEach(item => {
+      const question = item.querySelector('.faq-question');
+      
+      question.addEventListener('click', () => {
+        item.classList.toggle('active');
+      });
+    });
+    
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+      anchor.addEventListener('click', function(e) {
+        e.preventDefault();
+        
+        const targetId = this.getAttribute('href');
+        if (targetId === '#') return;
+        
+        const targetElement = document.querySelector(targetId);
+        if (targetElement) {
+          window.scrollTo({
+            top: targetElement.offsetTop - 80,
+            behavior: 'smooth'
+          });
+          
+          // Close mobile menu if open
+          if (navMenu.classList.contains('active')) {
+            navMenu.classList.remove('active');
+            mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+          }
+        }
+      });
+    });
+  </script>
+</body>
+</html>
