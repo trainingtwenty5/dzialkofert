@@ -2470,7 +2470,6 @@ async function deleteOffer(offerId, offerTitle) {
 
 
 // POPRAWIONA funkcja loadUserOffers - wyświetla każdą działkę jako osobny kafelek
-// POPRAWIONA funkcja loadUserOffers - wyświetla każdą działkę jako osobny kafelek
 async function loadUserOffers(email) {
   try {
     const q = query(collection(db, "propertyListings"), where("email", "==", email));
@@ -2490,13 +2489,19 @@ async function loadUserOffers(email) {
       // Sprawdź czy oferta ma działki
       if (!offer.plots || offer.plots.length === 0) return;
       
-      // Filtruj tylko aktywne działki (mock: true lub bez pola mock)
-      const activePlots = offer.plots.filter(plot => plot.mock !== false);
+      // Znajdź oryginalne indeksy aktywnych działek
+      const activePlotsWithIndex = offer.plots
+        .map((plot, originalIndex) => ({ plot, originalIndex }))
+        .filter(({ plot }) => {
+          // Jeśli pole mock nie istnieje, traktuj jako aktywne
+          if (plot.mock === undefined) return true;
+          return plot.mock !== false;
+        });
       
-      if (activePlots.length === 0) return; // Pomiń oferty bez aktywnych działek
+      if (activePlotsWithIndex.length === 0) return; // Pomiń oferty bez aktywnych działek
       
       // Dla każdej aktywnej działki utwórz kartę
-      activePlots.forEach((plot, index) => {
+      activePlotsWithIndex.forEach(({ plot, originalIndex }, displayIndex) => {
         const offerElement = document.createElement('div');
         offerElement.classList.add('offer-card');
         
@@ -2506,7 +2511,7 @@ async function loadUserOffers(email) {
           "0.00";
           
         // Użyj nazwy działki jako tytułu
-        const plotTitle = plot.Id || `Działka ${index + 1}`;
+        const plotTitle = plot.Id || `Działka ${displayIndex + 1}`;
           
         offerElement.innerHTML = `
           <h3 class="offer-title">${plotTitle}</h3>
@@ -2517,10 +2522,10 @@ async function loadUserOffers(email) {
             <p><strong>Cena całkowita:</strong> ${plot.price || 'Nie podano'} zł <span style="color: #888; font-size: 0.85em; margin-left: 5px;">${pricePerM2} zł/m²</span></p>
           </div>
           <div class="offer-actions">
-            <button class="btn btn-primary btn-sm" onclick="editOffer('${offerId}', ${index})">
+            <button class="btn btn-primary btn-sm" onclick="editOffer('${offerId}', ${originalIndex})">
               <i class="fas fa-edit"></i> Edytuj
             </button>
-            <button class="btn btn-secondary btn-sm" onclick="deletePlot('${offerId}', ${index}, '${plotTitle}')">
+            <button class="btn btn-secondary btn-sm" onclick="deletePlot('${offerId}', ${originalIndex}, '${plotTitle}')">
               <i class="fas fa-trash"></i> Usuń
             </button>
           </div>
@@ -2623,12 +2628,22 @@ window.editOffer = async function(offerId, plotIndex) {
   }
 }
 
+
+
+
+
+
+
+
+
 window.deletePlot = async function(offerId, plotIndex, plotTitle) {
   if (!confirm(`Czy na pewno chcesz usunąć ofertę "${plotTitle}"?`)) {
     return;
   }
   
   try {
+    console.log("Usuwanie oferty:", offerId, "Index:", plotIndex);
+    
     // Pobierz aktualne dane oferty
     const offerDoc = await getDoc(doc(db, "propertyListings", offerId));
     if (!offerDoc.exists()) {
@@ -2638,30 +2653,38 @@ window.deletePlot = async function(offerId, plotIndex, plotTitle) {
     
     const offerData = offerDoc.data();
     
-    // Oznacz konkretną działkę jako nieaktywną (mock: false)
-    if (offerData.plots && offerData.plots[plotIndex]) {
-      const updatedPlots = [...offerData.plots];
-      updatedPlots[plotIndex] = {
-        ...updatedPlots[plotIndex],
-        mock: false
-      };
-      
-      // Zaktualizuj dokument
-      await updateDoc(doc(db, "propertyListings", offerId), {
-        plots: updatedPlots
-      });
-      
-      alert("Oferta została usunięta!");
-      
-      // Odśwież listę ofert
-      const user = auth.currentUser;
-      if (user) {
-        loadUserOffers(user.email);
-      }
+    // Sprawdź czy oferta ma działki i czy index jest poprawny
+    if (!offerData.plots || plotIndex >= offerData.plots.length) {
+      alert("Działka nie istnieje!");
+      return;
+    }
+    
+    console.log("Aktualne dane przed usunięciem:", offerData.plots);
+    
+    // Utwórz kopię tablicy plots i oznacz konkretną działkę jako nieaktywną
+    const updatedPlots = [...offerData.plots];
+    updatedPlots[plotIndex] = {
+      ...updatedPlots[plotIndex],
+      mock: false
+    };
+    
+    console.log("Dane po oznaczeniu jako nieaktywne:", updatedPlots);
+    
+    // ZAWSZE tylko aktualizuj tablicę plots, NIGDY nie usuwaj całego dokumentu
+    await updateDoc(doc(db, "propertyListings", offerId), {
+      plots: updatedPlots
+    });
+    
+    alert("Oferta została usunięta!");
+    
+    // Odśwież listę ofert
+    const user = auth.currentUser;
+    if (user) {
+      loadUserOffers(user.email);
     }
   } catch (error) {
     console.error("Błąd podczas usuwania oferty:", error);
-    alert("Wystąpił błąd podczas usuwania oferty.");
+    alert("Wystąpił błąd podczas usuwania oferty: " + error.message);
   }
 }
 	
@@ -2673,180 +2696,6 @@ window.deletePlot = async function(offerId, plotIndex, plotTitle) {
 	
   </script>
   
-  
-<script type="module">
-// Importy Firebase
-import { 
-  getFirestore, 
-  collection, 
-  query, 
-  where, 
-  getDocs, 
-  doc, 
-  getDoc,
-  updateDoc 
-} from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-// Inicjalizacja Firebase
-const firebaseConfig = {
-  apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
-  authDomain: "base-468e0.firebaseapp.com",
-  projectId: "base-468e0",
-  storageBucket: "base-468e0.firebasestorage.app",
-  messagingSenderId: "829161895559",
-  appId: "1:829161895559:web:d832541aac05b35847ea22"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-
-// Funkcje globalne do edycji i usuwania - POPRAWIONE
-// NADPISZ STARĄ FUNKCJĘ - to rozwiąże konflikt
-window.editOffer = async function(offerId, plotIndex) {
-  try {
-	if (event) event.preventDefault();
-    console.log("Rozpoczynam edycję oferty:", offerId, plotIndex);
-    
-    // Pobierz dane oferty
-    const offerDoc = await getDoc(doc(db, "propertyListings", offerId));
-    if (!offerDoc.exists()) {
-      alert("Oferta nie istnieje!");
-      return;
-    }
-    
-    const offerData = offerDoc.data();
-    const plot = offerData.plots[plotIndex];
-    
-    // Wypełnij formularz danymi
-    document.getElementById('editOfferId').value = offerId;
-    document.getElementById('editPlotIndex').value = plotIndex;
-    document.getElementById('editPlotId').value = plot.Id || '';
-    document.getElementById('editPrice').value = plot.price || '';
-    document.getElementById('editPhone').value = offerData.phone || '';
-    document.getElementById('editCity').value = offerData.city || '';
-    
-    // Otwórz modal
-    document.getElementById('editModal').style.display = 'flex';
-    
-  } catch (error) {
-    console.error("Błąd podczas edycji oferty:", error);
-    alert("Wystąpił błąd podczas edycji oferty: " + error.message);
-  }
-}
-
-window.deletePlot = async function(offerId, plotIndex, plotTitle) {
-  if (!confirm(`Czy na pewno chcesz usunąć ofertę "${plotTitle}"?`)) {
-    return;
-  }
-  
-  try {
-    // Pobierz aktualne dane oferty
-    const offerDoc = await getDoc(doc(db, "propertyListings", offerId));
-    if (!offerDoc.exists()) {
-      alert("Oferta nie istnieje!");
-      return;
-    }
-    
-    const offerData = offerDoc.data();
-    
-    // Oznacz konkretną działkę jako nieaktywną (mock: false)
-    if (offerData.plots && offerData.plots[plotIndex]) {
-      const updatedPlots = [...offerData.plots];
-      updatedPlots[plotIndex] = {
-        ...updatedPlots[plotIndex],
-        mock: false
-      };
-      
-      // Zaktualizuj dokument
-      await updateDoc(doc(db, "propertyListings", offerId), {
-        plots: updatedPlots
-      });
-      
-      alert("Oferta została usunięta!");
-      
-      // Odśwież listę ofert
-      const user = auth.currentUser;
-      if (user) {
-        loadUserOffers(user.email);
-      }
-    }
-  } catch (error) {
-    console.error("Błąd podczas usuwania oferty:", error);
-    alert("Wystąpił błąd podczas usuwania oferty: " + error.message);
-  }
-}
-
-// Obsługa formularza edycji
-document.getElementById('editForm').addEventListener('submit', async function(e) {
-  e.preventDefault();
-  
-  const offerId = document.getElementById('editOfferId').value;
-  const plotIndex = document.getElementById('editPlotIndex').value;
-  
-  try {
-    const offerDoc = await getDoc(doc(db, "propertyListings", offerId));
-    if (!offerDoc.exists()) {
-      alert("Oferta nie istnieje!");
-      return;
-    }
-    
-    const offerData = offerDoc.data();
-    const updatedPlots = [...offerData.plots];
-    
-    // Aktualizuj tylko zmienione dane (zachowaj geometrię i powierzchnię)
-    updatedPlots[plotIndex] = {
-      ...updatedPlots[plotIndex],
-      Id: document.getElementById('editPlotId').value,
-      price: document.getElementById('editPrice').value
-    };
-    
-    // Zaktualizuj w Firestore
-    await updateDoc(doc(db, "propertyListings", offerId), {
-      phone: document.getElementById('editPhone').value,
-      city: document.getElementById('editCity').value,
-      plots: updatedPlots,
-      updatedAt: new Date()
-    });
-    
-    alert('Oferta została zaktualizowana!');
-    closeModal(document.getElementById('editModal'));
-    
-    // Odśwież listę ofert
-    const user = auth.currentUser;
-    if (user) {
-      loadUserOffers(user.email);
-    }
-    
-  } catch (error) {
-    console.error("Błąd aktualizacji oferty:", error);
-    alert("Wystąpił błąd podczas aktualizacji oferty: " + error.message);
-  }
-});
-
-// Funkcja do otwierania modala
-function openModal(modal) {
-  modal.style.display = 'flex';
-}
-
-// Funkcja do zamykania modala
-function closeModal(modal) {
-  modal.style.display = 'none';
-}
-
-// Zamknij modal przyciskiem X
-document.querySelectorAll('.modal-close').forEach(button => {
-  button.addEventListener('click', () => {
-    const modal = button.closest('.modal');
-    closeModal(modal);
-  });
-});
-
-// Zamknij modal kliknięciem poza obszarem
-window.addEventListener('click', (e) => {
-  if (e.target.classList.contains('modal')) {
-    closeModal(e.target);
-  }
-});
-</script>
+ 
 </body>
 </html>
