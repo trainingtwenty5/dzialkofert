@@ -7,7 +7,8 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="icon" type="image/png" href="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png">
-  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+	
   <style>
     :root {
       --primary: #1e6fba;
@@ -337,39 +338,74 @@
       gap: 1.5rem;
     }
 
-    .offer-card {
-      background: var(--gradient-card);
-      padding: 1.5rem;
-      border-radius: var(--radius);
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition);
-    }
 
-    .offer-card:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-md);
-    }
 
-    .offer-title {
-      font-size: 1.2rem;
-      margin-bottom: 0.75rem;
-    }
+.offer-card p {
+    margin: 0.25rem 0;
+    font-size: 0.9rem;
+    color: #555;
+}
 
-    .offer-details {
-      color: var(--gray);
-      font-size: 0.9rem;
-      margin-bottom: 1rem;
-    }
 
-    .offer-actions {
-      display: flex;
-      gap: 0.75rem;
-    }
+.offer-card h5 {
+    margin: 0 0 0.5rem;
+    font-size: 1.2rem;
+    color: var(--primary, #1e6fba);}
 
-    .btn-sm {
-      padding: 0.5rem 1rem;
-      font-size: 0.85rem;
-    }
+.offer-list {
+  display: flex;
+  flex-direction: column; /* jedna kolumna */
+  gap: 1rem; /* odstęp między kartami */
+  padding: 0.5rem; /* trochę luzu od krawędzi */
+}
+
+.offer-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.08);
+  padding: 1.25rem;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-bottom: 1.25rem;
+}
+
+.offer-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+
+.offer-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #222;
+}
+
+.offer-details {
+  font-size: 0.85rem;
+  color: #666;
+  line-height: 1.4;
+  margin-bottom: 0.75rem;
+}
+
+.offer-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.btn-sm {
+  padding: 0.35rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+
+
+
+
+
+
+
 
     /* Hero Section */
     .hero {
@@ -1036,7 +1072,7 @@ header {
 }
 
 header .logo img {
-  height: 40px;
+  height: 70px;
   margin-right: 0.5rem;
 }
 
@@ -1272,6 +1308,57 @@ header .logo img {
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(30, 111, 186, 0.1);
 }	
+
+
+
+
+
+/* Styl dla etykiet na mapie */
+.gm-style .gm-style-iw {
+  background-color: rgba(255, 255, 255, 0.95);
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 2px 7px 1px rgba(0, 0, 0, 0.3);
+}
+
+.gm-style .gm-style-iw h3 {
+  margin: 0 0 8px 0;
+  font-size: 16px;
+  color: #1e6fba;
+}
+
+.gm-style .gm-style-iw p {
+  margin: 4px 0;
+  font-size: 14px;
+}
+
+.gm-style .gm-style-iw button {
+  display: none;
+}
+
+.map-info-window {
+  min-width: 200px;
+  font-family: 'Inter', sans-serif;
+}
+
+.map-info-window h3 {
+  margin: 0 0 10px 0;
+  color: #1e6fba;
+  font-size: 16px;
+}
+
+.map-info-window p {
+  margin: 5px 0;
+  font-size: 14px;
+}
+
+.no-offers {
+  text-align: center;
+  padding: 20px;
+  color: #666;
+  font-style: italic;
+}
+
   </style>
 </head>
 <body>
@@ -1297,9 +1384,7 @@ header .logo img {
     <button class="btn btn-outline-primary btn-sm me-2" id="accountBtn">
       <i class="fas fa-user me-1"></i> Moje konto
     </button>
-    <a href="dodaj.html" class="btn btn-primary btn-sm" id="addOfferBtn">
-      <i class="fas fa-plus me-1"></i> Dodaj ofertę
-    </a>
+
     <button class="btn btn-secondary btn-sm ms-2" id="logoutBtn">
       <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
     </button>
@@ -1316,7 +1401,7 @@ header .logo img {
   <nav class="desktop-nav">
     <a href="index.html" class="nav-link">Strona główna</a>
     <a href="oferty.html" class="nav-link">Oferty</a>
-    <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+
     <a href="#contact" class="nav-link">Kontakt</a>
   </nav>
 
@@ -1588,12 +1673,20 @@ window.addEventListener('resize', () => {
     let markers = [];
     let markerCluster;
 
-// Proste rozwiązanie - bezpośrednio w initMap
+	// Proste rozwiązanie - bezpośrednio w initMap
+	// Zmień funkcję initMap na:
 async function initMap() {
   map = new google.maps.Map(document.getElementById("map"), {
     center: { lat: 52.0, lng: 19.0 },
     zoom: 6,
-    gestureHandling: "greedy" // To może pomóc z scrollowaniem
+    gestureHandling: "greedy",
+    mapTypeId: google.maps.MapTypeId.HYBRID
+  });
+
+
+	  
+	    google.maps.event.addListener(map, "idle", () => {
+    filterOffersByBounds();
   });
 
   await loadOffers();
@@ -1654,11 +1747,20 @@ async function deleteOffer(offerId, offerTitle) {
 
 
 // Modyfikacja funkcji loadOffers - filtrowanie tylko aktywnych ofert (mock: true)
+// Modyfikacja funkcji loadOffers - filtrowanie tylko aktywnych ofert (mock: true)
+let allOffers = [];
+
+// Modyfikacja funkcji loadOffers - filtrowanie tylko aktywnych ofert (mock: true)
 async function loadOffers() {
   try {
     const snapshot = await window.getDocs(window.collection(window.db, "propertyListings"));
     const listContainer = document.getElementById("offersList");
     listContainer.innerHTML = "";
+
+    // Wyczyść poprzednie oferty i markery
+    allOffers = [];
+    markers.forEach(marker => marker.setMap(null));
+    markers = [];
 
     // Obiekt do przechowywania polygonów
     const plotPolygons = [];
@@ -1679,23 +1781,64 @@ async function loadOffers() {
         const marker = new google.maps.Marker({
           position: { lat, lng },
           map,
-          title: data.firstName || "Oferta"
+          title: data.firstName || "Oferta",
+          icon: {
+            url: "https://maps.google.com/mapfiles/ms/icons/red-dot.png"
+          }
         });
         markers.push(marker);
 
+        // Dodaj klikalność do markera
+marker.addListener('click', () => {
+  const infoWindow = new google.maps.InfoWindow({
+    content: `
+      <div class="map-info-window">
+        <h3>${plot.Id || "Brak identyfikatora"}</h3>
+        <p><b>Miejscowość:</b> ${data.city || "brak"}</p>
+        <p><b>Cena:</b> ${plot.price || "brak"} zł</p>
+        <p><b>Powierzchnia:</b> ${plot.pow_dzialki_m2_uldk ? plot.pow_dzialki_m2_uldk.toFixed(2) + " m²" : "brak"}</p>
+        <p><b>Telefon:</b> ${data.phone || "brak"}</p>
+      </div>
+    `
+  });
+  infoWindow.open(map, marker);
+  
+  // Dodaj to, aby zamknąć poprzednie okno informacyjne
+  google.maps.event.addListener(infoWindow, 'closeclick', () => {
+    infoWindow.setMap(null);
+  });
+});
+
+        let polygon = null;
         // Parsowanie geometrii i tworzenie polygonu (ukrytego początkowo)
         if (geometry) {
           const coords = parseGeometry(geometry);
           if (coords.length > 0) {
-            const polygon = new google.maps.Polygon({
+            polygon = new google.maps.Polygon({
               paths: coords,
-              strokeColor: "#1e6fba",
+              strokeColor: "#FF0000", // Czerwony kolor
               strokeOpacity: 0.8,
-              strokeWeight: 2,
-              fillColor: "#1e6fba",
-              fillOpacity: 0.15,
+              strokeWeight: 3,        // Grubsza linia
+              fillColor: "#FF0000",   // Czerwone wypełnienie
+              fillOpacity: 0.15,      // Przezroczyste wypełnienie
               map: null, // Początkowo nie pokazujemy na mapie
               visible: false
+            });
+            
+            // Dodaj klikalność do polygonu
+            polygon.addListener('click', (event) => {
+              new google.maps.InfoWindow({
+                content: `
+                  <div class="map-info-window">
+                    <h3>${plot.Id || "Brak identyfikatora"}</h3>
+                    <p><b>Miejscowość:</b> ${data.city || "brak"}</p>
+                    <p><b>Cena:</b> ${plot.price || "brak"} zł</p>
+                    <p><b>Powierzchnia:</b> ${plot.pow_dzialki_m2_uldk ? plot.pow_dzialki_m2_uldk.toFixed(2) + " m²" : "brak"}</p>
+                    <p><b>Telefon:</b> ${data.phone || "brak"}</p>
+                  </div>
+                `,
+                position: event.latLng
+              }).open(map);
             });
             
             plotPolygons.push({
@@ -1706,55 +1849,67 @@ async function loadOffers() {
           }
         }
 
-        // karta oferty
-        const card = document.createElement("div");
-        card.className = "offer-card";
-        
-        // Oblicz cenę za m²
-        const pricePerM2 = plot.pow_dzialki_m2_uldk ? 
-          (parseFloat(plot.price) / plot.pow_dzialki_m2_uldk).toFixed(2) : 
-          "0.00";
-          
-        card.innerHTML = `
-          <h5>${plot.Id || "Brak identyfikatora"}</h5>
-		  ${data.city ? `<p><b>Miejscowość:</b> ${data.city}</p>` : ""}
-          <p><b>Telefon:</b> ${data.phone || "-"}</p>
-          
-          ${plot.price ? `<p><b>Cena całkowita:</b> ${plot.price} zł <span style="color: #888; font-size: 0.85em; margin-left: 5px;">${pricePerM2} zł/m²</span></p>` : ""}
-          ${plot.pow_dzialki_m2_uldk ? `<p><b>Powierzchnia:</b> ${plot.pow_dzialki_m2_uldk.toFixed(2)} m²</p>` : ""}
-          
-        `;
-        listContainer.appendChild(card);
-
-        // klik w ofertę -> przybliż do marker
-        card.addEventListener("click", () => {
-          map.panTo({ lat, lng });
-          map.setZoom(15);
-          new google.maps.InfoWindow({
-            content: `<b>${plot.Id || "Brak identyfikatora"}</b><br>Cena: ${plot.price || "brak"} zł`
-          }).open(map, marker);
+        // Zapisz ofertę w globalnej tablicy
+        allOffers.push({
+          id: doc.id,
+          data: data,
+          plot: plot,
+          index: index,
+          marker: marker,
+          polygon: polygon || null
         });
       });
     });
 
     // klastrowanie markerów
-    markerCluster = new markerClusterer.MarkerClusterer({ map, markers });
+    if (markerCluster) {
+      markerCluster.clearMarkers();
+    }
+    markerCluster = new markerClusterer.MarkerClusterer({
+  map,
+  markers,
+  renderer: {
+    render: ({ count, position }) => {
+      return new google.maps.Marker({
+        position,
+        label: {
+          text: String(count),
+          color: "white",
+          fontSize: "14px",
+          fontWeight: "bold"
+        },
+        icon: {
+          path: google.maps.SymbolPath.CIRCLE,
+          scale: 20,        // wielkość
+          fillColor: "red", // czerwony kolor
+          fillOpacity: 0.8,
+          strokeColor: "red",
+          strokeWeight: 2
+        }
+      });
+    }
+  }
+});
+
 
     // Obsługa zmiany zoomu - pokaż/ukryj polygony
     google.maps.event.addListener(map, 'zoom_changed', () => {
       const zoom = map.getZoom();
-      const showPolygons = zoom >= 15; // Pokazuj polygony tylko przy zoom >= 15
+      const showPolygons = zoom >= 8; // Pokazuj polygony przy zoom >= 12
       
       plotPolygons.forEach(plot => {
-        if (showPolygons) {
+        if (showPolygons && plot.polygon) {
           plot.polygon.setMap(map);
           plot.polygon.setVisible(true);
-        } else {
+        } else if (plot.polygon) {
           plot.polygon.setMap(null);
           plot.polygon.setVisible(false);
         }
       });
     });
+
+    // Po załadowaniu ofert, przefiltruj je
+    filterOffersByBounds();
 
   } catch (err) {
     console.error("Błąd pobierania ofert:", err);
@@ -1763,6 +1918,96 @@ async function loadOffers() {
 
 
 
+
+
+// Funkcja do filtrowania ofert widocznych na mapie
+function filterOffersByBounds() {
+  if (!map || !allOffers.length) {
+    console.log("Mapa nie jest gotowa lub brak ofert");
+    return;
+  }
+  
+  const bounds = map.getBounds();
+  if (!bounds) {
+    console.log("Bounds nie są dostępne");
+    return;
+  }
+  
+  const visibleOffers = allOffers.filter(offer => {
+    return bounds.contains(offer.marker.getPosition());
+  });
+  
+  // Wyświetl tylko widoczne oferty
+  const listContainer = document.getElementById("offersList");
+  if (!listContainer) {
+    console.log("Element offersList nie istnieje");
+    return;
+  }
+  
+  listContainer.innerHTML = "";
+  
+  if (visibleOffers.length === 0) {
+    listContainer.innerHTML = '<p class="no-offers">Brak ofert w widocznym obszarze</p>';
+    return;
+  }
+  
+  visibleOffers.forEach(offer => {
+    const card = document.createElement("div");
+    card.className = "offer-card";
+    
+    // Oblicz cenę za m²
+    const pricePerM2 = offer.plot.pow_dzialki_m2_uldk ? 
+      (parseFloat(offer.plot.price) / offer.plot.pow_dzialki_m2_uldk).toFixed(2) : 
+      "0.00";
+      
+    card.innerHTML = `
+      <h5>${offer.plot.Id || "Brak identyfikatora"}</h5>
+      ${offer.data.city ? `<p><b>Miejscowość:</b> ${offer.data.city}</p>` : ""}
+      <p><b>Telefon:</b> ${offer.data.phone || "-"}</p>
+      
+      ${offer.plot.price ? `<p><b>Cena całkowita:</b> ${offer.plot.price} zł <span style="color: #888; font-size: 0.85em; margin-left: 5px;">${pricePerM2} zł/m²</span></p>` : ""}
+      ${offer.plot.pow_dzialki_m2_uldk ? `<p><b>Powierzchnia:</b> ${offer.plot.pow_dzialki_m2_uldk.toFixed(2)} m²</p>` : ""}
+    `;
+    
+    // Dodaj obsługę kliknięcia
+
+	card.addEventListener("click", () => {
+	  map.panTo(offer.marker.getPosition());
+	  map.setZoom(15);
+	  
+	  // Sprawdź czy klikamy tę samą ofertę
+	  if (window.currentInfoWindow && window.currentInfoWindowOffer === offer.marker) {
+		window.currentInfoWindow.close();
+		window.currentInfoWindow = null;
+		window.currentInfoWindowOffer = null;
+		return;
+	  }
+	  
+	  // Zamknij poprzednie okno jeśli istnieje
+	  if (window.currentInfoWindow) {
+		window.currentInfoWindow.close();
+	  }
+	  
+	  // Stwórz i otwórz nowe okno informacyjne
+	  window.currentInfoWindow = new google.maps.InfoWindow({
+		content: `
+		  <div class="map-info-window">
+			<h3>${offer.plot.Id || "Brak identyfikatora"}</h3>
+			<p><b>Miejscowość:</b> ${offer.data.city || "brak"}</p>
+			<p><b>Cena:</b> ${offer.plot.price || "brak"} zł</p>
+			<p><b>Powierzchnia:</b> ${offer.plot.pow_dzialki_m2_uldk ? offer.plot.pow_dzialki_m2_uldk.toFixed(2) + " m²" : "brak"}</p>
+			<p><b>Telefon:</b> ${offer.data.phone || "brak"}</p>
+		  </div>
+		`
+	  });
+	  
+	  window.currentInfoWindowOffer = offer.marker;
+	  window.currentInfoWindow.open(map, offer.marker);
+	});
+    
+    listContainer.appendChild(card);
+  });
+}
 
 
 
@@ -1881,9 +2126,9 @@ function getPolygonBounds(coords) {
     <div class="container">
       <div class="footer-container">
         <div class="footer-about">
-          <a href="#" class="footer-logo">
-            <img src="https://import.cdn.thinkific.com/1010971%2Fcustom_site_themes%2Fid%2FOzVLWf0AQZWNmpvP9uJr_Logo.png" alt="DziałkiEkspres">
-            <span>DziałkiEkspres</span>
+          <a style="color:white" href="index.html" class="footer-logo">
+            <img src="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png" alt="Działkofert">
+            <span>Działkofert</span>
           </a>
           <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
         </div>
@@ -1906,7 +2151,7 @@ function getPolygonBounds(coords) {
       </div>
       
       <div class="footer-bottom">
-        <p>© 2025 DziałkiEkspres. Wszelkie prawa zastrzeżone.</p>
+        <p>© 2025 Działkofert. Wszelkie prawa zastrzeżone.</p>
       </div>
     </div>
   </footer>
