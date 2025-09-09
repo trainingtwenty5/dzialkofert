@@ -3,12 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DziałkiEkspres - Dodaj darmowe ogłoszenie</title>
+  <title>Działkofert - Dodaj darmowe ogłoszenie</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="https://files.cdn.thinkific.com/file_uploads/1010971/images/032/d7f/5ec/1010971_custom_site_themes_id_OzVLWf0AQZWNmpvP9uJr_Logo.png">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
-  
+  <link rel="icon" type="image/png" href="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png">
   
   <style>
     :root {
@@ -140,12 +138,9 @@
       padding: 3.5rem 0;
     }
 
-
     .section-title {
       text-align: center;
       margin-bottom: 2.5rem;
-	  margin-top:30px;
-	  margin-bottom: 0px;
     }
 
     .section-title h2 {
@@ -966,56 +961,169 @@
 	
 	
 	
-	 #map {
-      height: 500px;
-      border-radius: 10px;
-      margin-bottom: 30px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
 
-    .offers-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .offer-card {
-      background: white;
-      border-radius: 10px;
-      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      padding: 1.25rem;
-      cursor: pointer;
-      transition: transform 0.2s;
-    }
-
-    .offer-card:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 16px rgba(0,0,0,0.15);
-    }
-
-    .offer-card h5 {
-      margin: 0 0 0.5rem;
-      font-size: 1.2rem;
-      color: var(--primary, #1e6fba);
-    }
-
-    .offer-card p {
-      margin: 0.25rem 0;
-      font-size: 0.9rem;
-      color: #555;
-    }
 	
+	
+	
+	
+	
+/* Top Navbar (komputer) */
+.top-navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  background: #fff;
+  z-index: 1200;
+  padding: 0.5rem 1rem;
+  border-bottom: 1px solid #eee;
+}
 
+.contact-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  font-size: 0.9rem;
+}
 
+.auth-buttons,
+.user-menu {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
 
+.top-navbar .btn-sm {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.8rem;
+}
 
+/* Przycisk Dodaj ofertę */
+.desktop-add-offer,
+.mobile-add-offer {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.4rem 0.8rem;
+  border-radius: 5px;
+  background: linear-gradient(90deg, #007bff, #0056b3);
+  color: white;
+  font-weight: 500;
+  font-size: 0.85rem;
+  text-decoration: none;
+  transition: 0.3s;
+}
 
+.desktop-add-offer:hover,
+.mobile-add-offer:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
 
+/* Header */
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: fixed;
+  top: 40px; /* pod top-navbar na desktopie */
+  width: 100%;
+  z-index: 1100;
+  background: #fff;
+  padding: 0.5rem 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
 
+header .logo img {
+  height: 40px;
+  margin-right: 0.5rem;
+}
 
+/* Desktopowe menu */
+.desktop-nav {
+  display: flex;
+  gap: 1.5rem;
+}
 
+.desktop-nav .nav-link {
+  text-decoration: none;
+  color: #333;
+  font-weight: 500;
+}
 
+/* Menu i przyciski mobilne */
+.nav-menu {
+  position: fixed;
+  top: 60px;
+  left: 0;
+  width: 100%;
+  flex-direction: column;
+  background: white;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  transform: translateY(-100%);
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s;
+  z-index: 1000;
+}
 
+.nav-menu.active {
+  transform: translateY(0);
+  opacity: 1;
+  visibility: visible;
+}
+
+.nav-menu .nav-link {
+  margin-bottom: 1rem;
+  font-size: 1rem;
+  color: #333;
+  text-decoration: none;
+}
+
+.mobile-auth {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1.5rem;
+  border-top: 1px solid #eee;
+  padding-top: 1.5rem;
+}
+
+.mobile-menu-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  display: none;
+}
+
+/* Responsywność */
+@media (max-width: 768px) {
+  .top-navbar,
+  .desktop-nav,
+  .desktop-add-offer {
+    display: none !important;
+  }
+
+  header {
+    top: 0; /* header przy samej górze telefonu */
+  }
+
+  .mobile-add-offer,
+  .mobile-menu-btn {
+    display: inline-flex;
+  }
+}
+
+@media (min-width: 769px) {
+  .nav-menu,
+  .mobile-add-offer,
+  .mobile-menu-btn,
+  .mobile-auth {
+    display: none !important;
+  }
+}
 
 
 
@@ -1164,65 +1272,133 @@
   border-color: var(--primary);
   box-shadow: 0 0 0 3px rgba(30, 111, 186, 0.1);
 }	
-	
   </style>
 </head>
-
-
-
-
-
 <body>
-  <!-- Top Navbar -->
-  <div class="top-navbar">
-    <div class="container top-navbar-container">
-      <div class="contact-info">
-        <i class="fas fa-clock me-2"></i> Poniedziałek - Piątek 9:00 - 18:00
-        <span class="ms-4"><i class="fas fa-phone me-2"></i> +48 505 849 404</span>
-      </div>
-      
-      <div class="auth-buttons" id="authButtons">
-        <button class="btn btn-outline-primary me-2" id="loginBtn">
-          <i class="fas fa-sign-in-alt me-1"></i> Zaloguj się
-        </button>
-        <button class="btn btn-primary" id="registerBtn">
-          <i class="fas fa-user-plus me-1"></i> Zarejestruj się
-        </button>
-      </div>
-      <div class="user-menu" id="userMenu" style="display: none;">
-        <button class="btn btn-outline-primary me-2" id="accountBtn">
-          <i class="fas fa-user me-1"></i> Moje konto
-        </button>
-        <a href="dodaj.html" class="btn btn-primary" id="addOfferBtn">
-          <i class="fas fa-plus me-1"></i> Dodaj ofertę
-        </a>
-        <button class="btn btn-secondary" id="logoutBtn">
-          <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
-        </button>
-      </div>
-    </div>
+
+
+<!-- Top Navbar - tylko na komputerze -->
+<div class="top-navbar">
+  <div class="contact-info">
+    <i class="fas fa-clock"></i> Poniedziałek - Piątek 9:00 - 18:00
+    <span><i class="fas fa-phone"></i> +48 505 849 404</span>
   </div>
 
-  <!-- Header -->
-  <header>
-    <div class="container header-container">
-      <a href="index.html" class="logo">
-        <img src="https://import.cdn.thinkific.com/1010971%2Fcustom_site_themes%2Fid%2FOzVLWf0AQZWNmpvP9uJr_Logo.png" alt="DziałkiEkspres">
-        <span>DziałkiEkspres</span>
-      </a>
-      
-      <nav class="nav-menu">
-        <a href="index.html" class="nav-link">Strona główna</a>
-        <a href="oferty.html" class="nav-link">Oferty</a>
-        <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
-        <a href="#contact" class="nav-link">Kontakt</a>
-      </nav>
-      
-      <button class="mobile-menu-btn">
-        <i class="fas fa-bars"></i>
-      </button>
+  <div class="auth-buttons" id="authButtons">
+    <button class="btn btn-outline-primary btn-sm me-2" id="loginBtn">
+      <i class="fas fa-sign-in-alt me-1"></i> Zaloguj się
+    </button>
+    <button class="btn btn-primary btn-sm" id="registerBtn">
+      <i class="fas fa-user-plus me-1"></i> Zarejestruj się
+    </button>
+  </div>
+
+  <div class="user-menu" id="userMenu" style="display: none;">
+    <button class="btn btn-outline-primary btn-sm me-2" id="accountBtn">
+      <i class="fas fa-user me-1"></i> Moje konto
+    </button>
+    <a href="dodaj.html" class="btn btn-primary btn-sm" id="addOfferBtn">
+      <i class="fas fa-plus me-1"></i> Dodaj ofertę
+    </a>
+    <button class="btn btn-secondary btn-sm ms-2" id="logoutBtn">
+      <i class="fas fa-sign-out-alt me-1"></i> Wyloguj
+    </button>
+  </div>
+</div>
+
+<!-- Header - telefon -->
+<header>
+  <a href="index.html" class="logo">
+    <img src="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png" alt="Działkofert">
+    <span>Działkofert</span>
+  </a>
+
+  <nav class="desktop-nav">
+    <a href="index.html" class="nav-link">Strona główna</a>
+    <a href="oferty.html" class="nav-link">Oferty</a>
+    <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+    <a href="#contact" class="nav-link">Kontakt</a>
+  </nav>
+
+  <!-- Przycisk Dodaj ofertę -->
+  <a href="dodaj.html" class="desktop-add-offer">
+    <i class="fas fa-plus"></i> Dodaj ofertę
+  </a>
+
+  <!-- Przycisk Dodaj ofertę -->
+  <a href="dodaj.html" class="mobile-add-offer">
+    <i class="fas fa-plus"></i> Dodaj ofertę
+  </a>
+
+  <button class="mobile-menu-btn">
+    <i class="fas fa-bars"></i>
+  </button>
+
+  <nav class="nav-menu">
+    <a href="index.html" class="nav-link">Strona główna</a>
+    <a href="oferty.html" class="nav-link">Oferty</a>
+    <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+    <a href="#contact" class="nav-link">Kontakt</a>
+
+    <div class="mobile-auth" style="display: none;">
+      <a href="#" id="loginLink" class="nav-link">Zaloguj się</a>
+      <a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>
     </div>
-  </header>
+  </nav>
+</header>
+
+
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const navMenu = document.querySelector('.nav-menu');
+  const mobileAuth = document.querySelector('.mobile-auth');
+  
+  mobileMenuBtn.addEventListener('click', function() {
+    navMenu.classList.toggle('active');
+    mobileAuth.style.display = navMenu.classList.contains('active') ? 'flex' : 'none';
+  });
+  
+  // Obsługa kliknięcia w linki logowania/rejestracji
+  document.getElementById('loginLink')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('loginModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+  });
+  
+  document.getElementById('registerLink')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('registerModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+  });
+});
+
+
+// Skrypt zapobiegający problemom z responsywnością
+let resizeTimer;
+window.addEventListener('resize', () => {
+  document.body.classList.add('resize-animation-stopper');
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    document.body.classList.remove('resize-animation-stopper');
+    // Wymuszenie ponownego renderowania menu
+    const navMenu = document.querySelector('.nav-menu');
+    if (window.innerWidth > 768) {
+      navMenu.classList.remove('active');
+    }
+  }, 400);
+});
+</script>
+
+
+
+
+
+
+
+
+
 
   <!-- Login Modal -->
   <div class="modal" id="loginModal">
@@ -1295,8 +1471,6 @@
       </div>
     </div>
   </div>
-
-
 
 
 
