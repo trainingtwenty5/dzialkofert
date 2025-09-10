@@ -1161,6 +1161,47 @@ header .logo img {
   }
 }
 
+/* Logo */
+.logo img {
+  height: 50px; /* było 70px */
+  filter: brightness(0) invert(1); /* białe logo */
+}
+
+/* Modal */
+.modal-content {
+  max-width: 360px; /* było 400px */
+  padding: 1.5rem;
+}
+
+/* Social login */
+.social-login .btn {
+  background: white;
+  color: #333;
+  border: 1px solid #ddd;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.social-login .btn i {
+  font-size: 1.2rem;
+  margin-right: 8px;
+}
+
+.social-login .btn:hover {
+  background: #f7f7f7;
+  transform: translateY(-2px);
+}
+
+/* Google specjalne kolory ikony */
+.btn-google i {
+  color: #DB4437;
+}
+
+/* Facebook specjalne kolory ikony */
+.btn-facebook i {
+  color: #4267B2;
+}
+
 
   </style>
 </head>
@@ -1339,14 +1380,14 @@ window.addEventListener('resize', () => {
         <button type="submit" class="btn btn-primary" style="width: 100%;">Zarejestruj się</button>
       </form>
 	  
-      <div class="social-login mt-3 text-center">
-        <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
-          <i class="fab fa-google me-1"></i> Zaloguj przez Google
-        </button>
-        <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
-          <i class="fab fa-facebook-f me-1"></i> Zaloguj przez Facebook
-        </button>
-      </div>
+		<div class="social-login mt-3 text-center">
+		  <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
+			<i class="fab fa-google"></i> Kontynuuj z Google
+		  </button>
+		  <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
+			<i class="fab fa-facebook-f"></i> Kontynuuj z Facebook
+		  </button>
+		</div>
       
       <div class="domain-warning" id="domainWarning">
         <i class="fas fa-exclamation-triangle"></i> 
@@ -1621,10 +1662,11 @@ window.addEventListener('resize', () => {
     // Check if we're on an authorized domain
     function checkAuthorizedDomain() {
       const currentDomain = window.location.hostname;
-      const authorizedDomains = [
-        'https://trainingtwenty5.github.io/dzialkofert/'
-      ];
-      
+		const authorizedDomains = [
+		  'trainingtwenty5.github.io',
+		  'localhost' // przydatne do testów lokalnych
+		];
+			  
       // Add your custom domain here once you configure it in Firebase
       // authorizedDomains.push('twojadomena.pl');
       
