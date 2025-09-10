@@ -228,6 +228,8 @@
   }
 }
 
+
+
   </style>
 </head>
 <body onload="loadGoogleMaps()">
@@ -408,65 +410,64 @@ let pointMarkers = []; // {id, desktopMarker, mobileMarker}
 
 
 function initMap() {
-  // sprawdzamy, czy to telefon (np. < 992px)
   const isMobile = window.innerWidth < 992;
 
   const mapOptions = {
     center: { lat: 51.63538575429843, lng: 16.45740592647929 },
     zoom: 17,
     fullscreenControl: false,
-    streetViewControl: !isMobile, // 🔹 Street View tylko na desktopie
-      styles: [
-    {
-      featureType: "all",
-      elementType: "labels",
-      stylers: [{ visibility: "off" }]
-    },
-    {
-      featureType: "administrative.locality",
-      elementType: "labels.text",
-      stylers: [{ visibility: "on" }]
-    },
-    {
-      featureType: "water",
-      elementType: "labels.text",
-      stylers: [{ visibility: "on" }]
-    },
-    {
-      featureType: "road",
-      elementType: "labels.text",
-      stylers: [{ visibility: "on" }]
-    },
-    {
-      featureType: "poi", // punkty POI (np. sklepy, szkoły)
-      elementType: "labels.text",
-      stylers: [{ visibility: "on" }]
-    },
-    {
-      featureType: "address", // 🔹 adresy (numery budynków)
-      elementType: "labels.text",
-      stylers: [{ visibility: "on" }]
-    }
-  ]
-};
+    streetViewControl: !isMobile, // Street View tylko na desktopie
+    styles: [
+      {
+        featureType: "all",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      {
+        featureType: "administrative.locality",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      {
+        featureType: "water",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      {
+        featureType: "road",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      {
+        featureType: "poi", // punkty POI (np. sklepy, szkoły)
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      {
+        featureType: "address", // 🔹 adresy (numery budynków)
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      }
+    ]
   };
 
-  if (document.getElementById('map')) {
+  // Desktopowa mapa
+  if (document.getElementById('map') && !isMobile) {
     desktopMap = new google.maps.Map(document.getElementById('map'), mapOptions);
     desktopMap.addListener('click', e => addPointToSelection(e.latLng));
-
     addWmsLayer(desktopMap, "dzialki");
     addWmsLayer(desktopMap, "numery_dzialek");
   }
 
-  if (document.getElementById('map-mobile')) {
+  // Mobilna mapa
+  if (document.getElementById('map-mobile') && isMobile) {
     mobileMap = new google.maps.Map(document.getElementById('map-mobile'), mapOptions);
     mobileMap.addListener('click', e => addPointToSelection(e.latLng));
-
     addWmsLayer(mobileMap, "dzialki");
     addWmsLayer(mobileMap, "numery_dzialek");
   }
 }
+
 
 
 function addWmsLayer(map, layerName) {
