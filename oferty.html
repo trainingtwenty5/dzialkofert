@@ -1588,6 +1588,80 @@ footer {
   .nav-menu{ z-index: 1200; }     /* na wszelki wypadek ponad mapą/headerem */
 }
 	
+/* === SIZE & DENSITY OVERRIDES (jak na stronie głównej) === */
+html { font-size: 15px; }
+body { font-size: 0.9rem; }
+
+.top-navbar { padding: 0.3rem 0.75rem; font-size: 0.8rem; }
+header { padding: 0.4rem 0.75rem; top: 40px; box-shadow: 0 2px 6px rgba(0,0,0,0.1); }
+.logo img { height: 42px; }
+.logo span { font-size: 1rem; }
+.nav-link { font-size: 0.9rem; }
+
+.section { padding: 2rem 0; }
+.hero { padding: 6rem 0 2.5rem; }
+.hero-text h1 { font-size: 1.9rem; }
+.hero-text p { font-size: 1rem; margin-bottom: 1.25rem; }
+.hero-buttons { gap: 0.5rem; }
+
+.btn { padding: 0.55rem 1rem; font-size: 0.85rem; border-radius: 8px; gap: 0.4rem; }
+.btn-sm { padding: 0.3rem 0.6rem; font-size: 0.75rem; border-radius: 6px; }
+
+.modal-content { padding: 1.1rem; max-width: 360px; }
+.modal-header { margin-bottom: 0.9rem; }
+.modal-header h3 { font-size: 1.1rem; }
+.form-group { margin-bottom: 0.8rem; }
+.form-group label { font-size: 0.85rem; margin-bottom: 0.4rem; }
+.form-group input { padding: 0.55rem 0.75rem; font-size: 0.9rem; border-radius: 8px; }
+.form-footer { margin-top: 1rem; font-size: 0.85rem; }
+
+.social-login { margin-top: 0.9rem; }
+.social-login .btn { margin-bottom: 0.5rem; }
+
+.offers-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.offer-card { padding: 1rem; }
+.offer-title { font-size: 0.95rem; }
+.offer-card h5 { font-size: 1.05rem; }
+.offer-details { font-size: 0.82rem; }
+
+.feature-card { padding: 1.2rem; }
+.feature-icon { width: 44px; height: 44px; font-size: 1.1rem; }
+.info-badge, .instructor-badge { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
+.cta { padding: 3.5rem 0; }
+
+footer { padding: 2.5rem 0 1.25rem; }
+.footer-container { gap: 1.5rem; }
+
+.desktop-add-offer, .mobile-add-offer {
+  padding: 0.35rem 0.7rem; font-size: 0.8rem; border-radius: 6px;
+}
+
+.domain-warning { font-size: 0.85rem; padding: 8px; }
+
+@media (max-width: 1024px) {
+  html { font-size: 14px; }
+  .logo img { height: 36px; }
+  .nav-link { font-size: 0.85rem; }
+  .modal-content { max-width: 340px; }
+}
+@media (max-width: 768px) {
+  html { font-size: 13px; }
+  .hero { padding: 5.5rem 0 2rem; }
+  .hero-text h1 { font-size: 1.6rem; }
+  header { top: 0; }
+  .nav-menu { top: 52px; padding: 1.1rem; }
+  .nav-menu .nav-link { font-size: 0.95rem; margin-bottom: 0.7rem; }
+  .mobile-add-offer { font-size: 0.85rem; padding: 0.35rem 0.7rem; }
+}
+@media (max-width: 480px) {
+  html { font-size: 12px; }
+  .modal-content { max-width: 320px; padding: 1rem; }
+  .btn { width: 100%; }
+  .feature-card { padding: 1rem; }
+  .hero-text h1 { font-size: 1.45rem; }
+}
+	
+	
   </style>
 </head>
 <body>
@@ -1708,6 +1782,13 @@ footer {
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Zaloguj się</button>
       </form>
+	  
+	  <div class="social-login">
+  <button type="button" class="btn btn-google" id="googleLoginBtnLogin">
+    <i class="fab fa-google"></i> Kontynuuj z Google
+  </button>
+</div>
+	  
       <div class="form-footer">
         <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
       </div>
@@ -1745,9 +1826,7 @@ footer {
         <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
           <i class="fab fa-google me-1"></i> Zaloguj przez Google
         </button>
-        <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
-          <i class="fab fa-facebook-f me-1"></i> Zaloguj przez Facebook
-        </button>
+
       </div>
       
       <div class="domain-warning" id="domainWarning">
@@ -2762,5 +2841,249 @@ window.addEventListener('resize', () => {
 
 
   </script>
+  
+  
+ 
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth, onAuthStateChanged,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
+    GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+    setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore, collection, query, where, getDocs, doc, setDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // --- Konfiguracja (ta sama) ---
+  const firebaseConfig = {
+    apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
+    authDomain: "base-468e0.firebaseapp.com",
+    projectId: "base-468e0",
+    storageBucket: "base-468e0.firebasestorage.app",
+    messagingSenderId: "829161895559",
+    appId: "1:829161895559:web:d832541aac05b35847ea22"
+  };
+
+  // --- Init ---
+  const app  = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db   = getFirestore(app);
+  auth.languageCode = 'pl';
+
+  // 0) Ostrzeżenie o uruchamianiu z file://
+  // if (location.protocol === 'file:') {
+  //   alert('Uruchom stronę przez http/https (np. http://localhost), nie z pliku (file://). Inaczej logowanie nie zadziała.');
+ //  }
+
+  // 1) Persystencja (fallback kaskadowy)
+  async function useBestPersistence() {
+    try { await setPersistence(auth, browserLocalPersistence); }
+    catch { try { await setPersistence(auth, browserSessionPersistence); }
+    catch { await setPersistence(auth, inMemoryPersistence); } }
+  }
+  await useBestPersistence();
+
+  // 2) Szybka podpowiedź o domenie (UI tylko informacyjne)
+  (function domainHint(){
+    const hint = document.getElementById('domainWarning');
+    if (!hint) return;
+    const knownGood = ['localhost','127.0.0.1','trainingtwenty5.github.io'];
+    if (!knownGood.includes(location.hostname)) {
+      hint.style.display = 'block';
+      // Pamiętaj też dodać tę domenę w Firebase → Authorized domains
+    }
+  })();
+
+  // 3) Provider Google
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+
+  // 4) DOM
+  const authButtons   = document.getElementById('authButtons');
+  const userMenu      = document.getElementById('userMenu');
+  const loginBtn      = document.getElementById('loginBtn');
+  const registerBtn   = document.getElementById('registerBtn');
+  const accountBtn    = document.getElementById('accountBtn');
+  const logoutBtn     = document.getElementById('logoutBtn');
+  const loginModal    = document.getElementById('loginModal');
+  const registerModal = document.getElementById('registerModal');
+  const closeBtns     = document.querySelectorAll('.modal-close');
+  const switchToReg   = document.getElementById('switchToRegister');
+  const switchToLog   = document.getElementById('switchToLogin');
+  const loginForm     = document.getElementById('loginForm');
+  const registerForm  = document.getElementById('registerForm');
+  const userDashboard = document.getElementById('userDashboard');
+  const userOffers    = document.getElementById('userOffers');
+  const gBtn1         = document.getElementById('googleLoginBtn');
+  const gBtn2         = document.getElementById('googleLoginBtnLogin');
+
+  const openModal  = (m) => m && (m.style.display = 'flex');
+  const closeModal = (m) => m && (m.style.display = 'none');
+
+  // 5) Auth state
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      authButtons && (authButtons.style.display = 'none');
+      userMenu    && (userMenu.style.display = 'flex');
+      if (accountBtn) {
+        const label = user.displayName ? user.displayName.split(' ')[0] : (user.email || 'Moje konto');
+        accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${label}`;
+      }
+      userDashboard && (userDashboard.style.display = 'block');
+      user?.email && loadUserOffers(user.email);
+      closeModal(loginModal); closeModal(registerModal);
+    } else {
+      authButtons && (authButtons.style.display = 'flex');
+      userMenu    && (userMenu.style.display = 'none');
+      userDashboard && (userDashboard.style.display = 'none');
+      userOffers && (userOffers.innerHTML = '');
+    }
+  });
+
+  // 6) UI zdarzenia
+  loginBtn     && loginBtn.addEventListener('click', () => openModal(loginModal));
+  registerBtn  && registerBtn.addEventListener('click', () => openModal(registerModal));
+  switchToReg  && switchToReg.addEventListener('click', (e) => { e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
+  switchToLog  && switchToLog.addEventListener('click', (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
+  closeBtns?.forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
+  window.addEventListener('click', (e) => { if (e.target.classList?.contains('modal')) closeModal(e.target); });
+  accountBtn && accountBtn.addEventListener('click', () => document.getElementById('userDashboard')?.scrollIntoView({behavior:'smooth'}));
+
+  // 7) Mapowanie błędów → PL
+  const niceAuthError = (err) => {
+    const code = err?.code || '';
+    switch (code) {
+      case 'auth/invalid-email':             return 'Nieprawidłowy adres e-mail.';
+      case 'auth/missing-password':          return 'Podaj hasło.';
+      case 'auth/invalid-credential':        return 'Nieprawidłowy e-mail lub hasło.';
+      case 'auth/user-not-found':            return 'Użytkownik nie istnieje.';
+      case 'auth/wrong-password':            return 'Błędne hasło.';
+      case 'auth/too-many-requests':         return 'Za dużo prób. Spróbuj później.';
+      case 'auth/unauthorized-domain':       return `Domena ${location.hostname} nie jest autoryzowana w Firebase (Authentication → Authorized domains).`;
+      case 'auth/popup-blocked':             return 'Przeglądarka zablokowała okno logowania Google. Użyj przekierowania.';
+      case 'auth/operation-not-supported-in-this-environment':
+                                             return 'To środowisko nie wspiera popup (np. file://). Uruchom przez http/https.';
+      default: return `Błąd: ${code || (err?.message || 'nieznany')}`;
+    }
+  };
+
+  // 8) Email / hasło
+  loginForm && loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
+    try {
+      await signInWithEmailAndPassword(auth, email, pass);
+    } catch (err) {
+      console.error('[login]', err);
+      alert(niceAuthError(err));
+    }
+  });
+
+  registerForm && registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const pass1 = document.getElementById('registerPassword').value;
+    const pass2 = document.getElementById('registerConfirmPassword').value;
+    if (pass1 !== pass2) return alert('Hasła nie są identyczne!');
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, pass1);
+      if (name) await updateProfile(user, { displayName: name });
+      await setDoc(doc(db, "users", user.uid), { name: name || null, email, createdAt: new Date(), provider: "password" }, { merge: true });
+    } catch (err) {
+      console.error('[register]', err);
+      alert(niceAuthError(err));
+    }
+  });
+
+  // 9) Google
+  async function signInWithGoogleSmart() {
+    const ok = ['http:', 'https:'].includes(location.protocol);
+    if (!ok) return alert('Uruchom stronę przez http/https (nie file://).');
+    try {
+      await signInWithPopup(auth, googleProvider);
+      closeModal(loginModal); closeModal(registerModal);
+    } catch (err) {
+      console.error('[google]', err);
+      if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/operation-not-supported-in-this-environment') {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        alert(niceAuthError(err));
+      }
+    }
+  }
+  [gBtn1, gBtn2].forEach(b => b && b.addEventListener('click', (e) => { e.preventDefault(); signInWithGoogleSmart(); }));
+
+  // 10) Wylogowanie
+  logoutBtn && logoutBtn.addEventListener('click', async () => { try { await auth.signOut(); } catch(e){} });
+
+  // 11) Oferty (po e-mailu)
+  async function loadUserOffers(email) {
+    try {
+      if (!userOffers) return;
+      userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
+      const q = query(collection(db, "propertyListings"), where("email", "==", email));
+      const snap = await getDocs(q);
+      userOffers.innerHTML = '';
+      if (snap.empty) { userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>'; return; }
+
+      snap.forEach((docu) => {
+        const offer = docu.data();
+        if (Array.isArray(offer.plots) && offer.plots.length) {
+          offer.plots
+            .map((plot, originalIndex) => ({ plot, originalIndex }))
+            .filter(({ plot }) => plot.mock !== false)
+            .forEach(({ plot, originalIndex }, i) => {
+              const city = offer.city || offer.location?.city || 'Nie podano';
+              const area = Number(plot.pow_dzialki_m2_uldk ?? plot.area ?? plot.areaM2 ?? 0);
+              const price = Number(plot.price ?? 0);
+              const ppm2  = price && area ? price / area : 0;
+              const el = document.createElement('div');
+              el.className = 'offer-card';
+              el.innerHTML = `
+                <h3 class="offer-title">${plot.Id || `Działka ${i+1}`}</h3>
+                <div class="offer-details">
+                  <p><strong>Lokalizacja:</strong> ${city}</p>
+                  <p><strong>Cena całkowita:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
+                    ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${Math.round(ppm2).toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
+                  <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
+                </div>
+                <div class="offer-actions">
+                  <button class="btn btn-primary btn-sm" onclick="window.location.href='dodaj.html?edit=${docu.id}&plot=${originalIndex}'">
+                    <i class="fas fa-edit"></i> Edytuj
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="alert('Usuń/edytuj w dodaj.html (docId + index)');">
+                    <i class="fas fa-trash"></i> Usuń
+                  </button>
+                </div>`;
+              userOffers.appendChild(el);
+            });
+        } else {
+          const city  = offer.city || offer.location?.city || offer.miejscowosc || offer.miasto || 'Nie podano';
+          const price = Number(offer.price || offer.cena || offer.totalPrice || 0);
+          const area  = Number(offer.areaM2 || offer.powierzchnia || offer.pow_dzialki_m2__c || 0);
+          const ppm2  = price && area ? Math.round(price / area) : 0;
+          const el = document.createElement('div');
+          el.className = 'offer-card';
+          el.innerHTML = `
+            <h3 class="offer-title">${city}</h3>
+            <div class="offer-details">
+              <p><strong>Lokalizacja:</strong> ${city}</p>
+              <p><strong>Cena:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
+                ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2.toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
+              <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
+            </div>`;
+          userOffers.appendChild(el);
+        }
+      });
+    } catch (err) {
+      console.error('Error loading offers:', err);
+      userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
+    }
+  }
+</script>
 </body>
 </html>
