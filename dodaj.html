@@ -222,6 +222,11 @@
   display: flex;
 }
 
+@media (max-width: 992px) {
+  #map {
+    display: none !important;
+  }
+}
 
   </style>
 </head>
@@ -282,14 +287,11 @@
 
 		
 <!-- Mobile -->
+<!-- Mobile -->
 <div class="map-container mb-3 d-lg-none" style="position: relative;">
   <div id="map-mobile"></div>
   <div class="map-overlay map-overlay-mobile">
-    <button id="clearPlotsBtnMobile" class="btn-overlay">🗑️ Wyczyść punkty</button>
-    <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" id="autoSaveMobile">
-      <label class="form-check-label" for="autoSaveMobile">Auto-zapis</label>
-    </div>
+    <button id="clearPlotsBtnMobile" class="btn-overlay">🗑️</button>
   </div>
 </div>
 		
@@ -699,6 +701,16 @@ $(document).ready(function() {
   });
 });
 
+// Obsługa "Wyczyść punkty"
+$("#clearPlotsBtn, #clearPlotsBtnMobile").click(function(){
+  selectedPoints = [];
+  pointMarkers.forEach(m=>{
+    if (m.desktopMarker) m.desktopMarker.setMap(null);
+    if (m.mobileMarker) m.mobileMarker.setMap(null);
+  });
+  pointMarkers = [];
+  updateSelectedPointsList();
+});
 
   </script>
 </body>
