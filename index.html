@@ -1161,6 +1161,115 @@ header .logo img {
   }
 }
 
+/* === SIZE & DENSITY OVERRIDES (paste at the end) === */
+html { font-size: 15px; }                       /* globalnie trochę mniejszy tekst */
+body { font-size: 0.9rem; }
+
+/* Top navbar + header mniejsze */
+.top-navbar {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+}
+header {
+  padding: 0.4rem 0.75rem;
+  top: 40px;
+}
+.logo img { height: 42px; }                     /* było ~70px w drugiej definicji */
+.logo span { font-size: 1rem; }
+.nav-link { font-size: 0.9rem; }
+
+/* Sekcje / hero ciaśniej */
+.section { padding: 2rem 0; }
+.hero { padding: 6rem 0 2.5rem; }
+.hero-text h1 { font-size: 1.9rem; }
+.hero-text p { font-size: 1rem; margin-bottom: 1.25rem; }
+.hero-buttons { gap: 0.5rem; }
+
+/* Przycisk bazowy mniejszy i ciaśniejszy */
+.btn {
+  padding: 0.55rem 1rem;
+  font-size: 0.85rem;
+  border-radius: 8px;
+  gap: 0.4rem;
+}
+.btn-sm {
+  padding: 0.3rem 0.6rem;
+  font-size: 0.75rem;
+  border-radius: 6px;
+}
+
+/* Modale i formularze kompaktowe */
+.modal-content {
+  padding: 1.1rem;
+  max-width: 360px;
+}
+.modal-header { margin-bottom: 0.9rem; }
+.modal-header h3 { font-size: 1.1rem; }
+.form-group { margin-bottom: 0.8rem; }
+.form-group label { font-size: 0.85rem; margin-bottom: 0.4rem; }
+.form-group input {
+  padding: 0.55rem 0.75rem;
+  font-size: 0.9rem;
+  border-radius: 8px;
+}
+.form-footer { margin-top: 1rem; font-size: 0.85rem; }
+
+/* Social login w modalach ciaśniej */
+.social-login { margin-top: 0.9rem; }
+.social-login .btn { margin-bottom: 0.5rem; }
+
+/* Karty ofert mniejsze */
+.offers-grid { grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; }
+.offer-card { padding: 1rem; }
+.offer-title { font-size: 0.95rem; }
+.offer-card h5 { font-size: 1.05rem; }
+.offer-details { font-size: 0.82rem; }
+
+/* Ikony / elementy dekoracyjne ciaśniej */
+.feature-card { padding: 1.2rem; }
+.feature-icon { width: 44px; height: 44px; font-size: 1.1rem; }
+.info-badge, .instructor-badge { padding: 0.45rem 0.9rem; font-size: 0.8rem; }
+.cta { padding: 3.5rem 0; }
+
+/* Stopka ciaśniej */
+footer { padding: 2.5rem 0 1.25rem; }
+.footer-container { gap: 1.5rem; }
+
+/* Przycisk "Dodaj ofertę" mniejszy */
+.desktop-add-offer, .mobile-add-offer {
+  padding: 0.35rem 0.7rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+}
+
+/* Drobne */
+.domain-warning { font-size: 0.85rem; padding: 8px; }
+
+/* --- Breakpointy: jeszcze ciaśniej na mniejszych ekranach --- */
+@media (max-width: 1024px) {
+  html { font-size: 14px; }
+  .logo img { height: 36px; }
+  .nav-link { font-size: 0.85rem; }
+  .modal-content { max-width: 340px; }
+}
+
+@media (max-width: 768px) {
+  html { font-size: 13px; }
+  .hero { padding: 5.5rem 0 2rem; }
+  .hero-text h1 { font-size: 1.6rem; }
+  header { top: 0; }
+  .nav-menu { top: 52px; padding: 1.1rem; }
+  .nav-menu .nav-link { font-size: 0.95rem; margin-bottom: 0.7rem; }
+  .mobile-add-offer { font-size: 0.85rem; padding: 0.35rem 0.7rem; }
+}
+
+@media (max-width: 480px) {
+  html { font-size: 12px; }
+  .modal-content { max-width: 320px; padding: 1rem; }
+  .btn { width: 100%; }
+  .feature-card { padding: 1rem; }
+  .hero-text h1 { font-size: 1.45rem; }
+}
 
   </style>
 </head>
@@ -1306,6 +1415,13 @@ window.addEventListener('resize', () => {
         </div>
         <button type="submit" class="btn btn-primary" style="width: 100%;">Zaloguj się</button>
       </form>
+	  
+	  <div class="social-login">
+  <button type="button" class="btn btn-google" id="googleLoginBtnLogin">
+    <i class="fab fa-google"></i> Kontynuuj z Google
+  </button>
+</div>
+	  
       <div class="form-footer">
         <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
       </div>
@@ -1343,9 +1459,7 @@ window.addEventListener('resize', () => {
 		  <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
 			<i class="fab fa-google"></i> Kontynuuj z Google
 		  </button>
-		  <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
-			<i class="fab fa-facebook-f"></i> Kontynuuj z Facebook
-		  </button>
+	
 		</div>
       
       <div class="domain-warning" id="domainWarning">
@@ -1864,6 +1978,240 @@ window.addEventListener('resize', () => {
         }
       });
     });
+	
+	
   </script>
+  
+  
+  <!-- Firebase (compat – najprościej w czystym HTML) -->
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+
+<script type="module">
+  // ===== Imports (modular SDK) =====
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import {
+    getAuth,
+    GoogleAuthProvider,
+    FacebookAuthProvider,
+    signInWithPopup,
+    signInWithRedirect,
+    onAuthStateChanged,
+    setPersistence,
+    browserLocalPersistence,
+    browserSessionPersistence,
+    inMemoryPersistence,
+    signInWithEmailAndPassword,
+    createUserWithEmailAndPassword,
+    updateProfile
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import {
+    getFirestore,
+    doc,
+    setDoc,
+    getDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+  import {
+    getAnalytics,
+    isSupported as analyticsIsSupported
+  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
+
+  // ===== Twoja konfiguracja =====
+  const firebaseConfig = {
+    apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
+    authDomain: "base-468e0.firebaseapp.com",
+    projectId: "base-468e0",
+    storageBucket: "base-468e0.firebasestorage.app",
+    messagingSenderId: "829161895559",
+    appId: "1:829161895559:web:d832541aac05b35847ea22"
+  };
+
+  // ===== Init =====
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+
+  // Analytics (opcjonalne; nie blokuj działania, jeśli brak measurementId)
+  try { if (await analyticsIsSupported()) getAnalytics(app); } catch (_) {}
+
+  // Język komunikatów Firebase
+  auth.languageCode = 'pl';
+
+  // ===== Providers =====
+  const googleProvider = new GoogleAuthProvider();
+  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  const facebookProvider = new FacebookAuthProvider(); // jeśli będziesz używać
+
+  // ===== DOM =====
+  const authButtons       = document.getElementById('authButtons');
+  const userMenu          = document.getElementById('userMenu');
+  const loginBtn          = document.getElementById('loginBtn');
+  const registerBtn       = document.getElementById('registerBtn');
+  const accountBtn        = document.getElementById('accountBtn');
+  const logoutBtn         = document.getElementById('logoutBtn');
+  const loginModal        = document.getElementById('loginModal');
+  const registerModal     = document.getElementById('registerModal');
+  const closeModalButtons = document.querySelectorAll('.modal-close');
+  const switchToRegister  = document.getElementById('switchToRegister');
+  const switchToLogin     = document.getElementById('switchToLogin');
+  const loginForm         = document.getElementById('loginForm');
+  const registerForm      = document.getElementById('registerForm');
+  const userDashboard     = document.getElementById('userDashboard');
+  const userOffers        = document.getElementById('userOffers');
+  const heroAddOffer      = document.getElementById('heroAddOffer');
+  const dashboardAddOffer = document.getElementById('dashboardAddOffer');
+  const googleLoginBtn    = document.getElementById('googleLoginBtn');        // (rejestracja)
+  const googleLoginBtn2   = document.getElementById('googleLoginBtnLogin');   // (logowanie)
+  const facebookLoginBtn  = document.getElementById('facebookLoginBtn');
+  const domainWarning     = document.getElementById('domainWarning');
+
+  // ===== Helpers (bezpieczne fallbacki) =====
+  function openModal(m){ if (m) m.style.display = 'flex'; }
+  function closeModal(m){ if (m) m.style.display = 'none'; }
+
+  function checkAuthorizedDomain() {
+    const currentDomain = window.location.hostname;
+    const authorizedDomains = [
+      'trainingtwenty5.github.io',
+      'localhost',
+      '127.0.0.1'
+    ];
+    if (!authorizedDomains.includes(currentDomain)) {
+      if (domainWarning) domainWarning.style.display = 'block';
+      console.warn('Uwaga: ta domena nie jest dodana w Firebase Auth → Authorized domains.');
+    }
+  }
+
+  // Persystencja: LOCAL → SESSION → MEMORY
+  async function setBestPersistence() {
+    try {
+      await setPersistence(auth, browserLocalPersistence);
+      return 'LOCAL';
+    } catch {
+      try {
+        await setPersistence(auth, browserSessionPersistence);
+        return 'SESSION';
+      } catch {
+        await setPersistence(auth, inMemoryPersistence);
+        return 'MEMORY';
+      }
+    }
+  }
+  const persistenceUsed = await setBestPersistence();
+  console.log('[Auth] persistence:', persistenceUsed);
+
+  // ===== Auth state =====
+  onAuthStateChanged(auth, (user) => {
+    if (user) {
+      if (authButtons) authButtons.style.display = 'none';
+      if (userMenu) userMenu.style.display = 'flex';
+      if (accountBtn) {
+        const label = user.displayName ? user.displayName.split(' ')[0] : (user.email || 'Moje konto');
+        accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${label}`;
+      }
+      if (userDashboard) userDashboard.style.display = 'block';
+      if (typeof loadUserOffers === 'function') {
+        try { loadUserOffers(user.email); } catch {}
+      }
+      closeModal(loginModal); closeModal(registerModal);
+    } else {
+      if (authButtons) authButtons.style.display = 'flex';
+      if (userMenu)   userMenu.style.display   = 'none';
+      if (userDashboard) userDashboard.style.display = 'none';
+    }
+  });
+
+  // ===== Modale =====
+  if (loginBtn)     loginBtn.addEventListener('click', () => openModal(loginModal));
+  if (registerBtn)  registerBtn.addEventListener('click', () => { openModal(registerModal); checkAuthorizedDomain(); });
+  if (switchToRegister) switchToRegister.addEventListener('click', (e) => { e.preventDefault(); closeModal(loginModal); openModal(registerModal); checkAuthorizedDomain(); });
+  if (switchToLogin)    switchToLogin.addEventListener('click', (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
+  if (closeModalButtons && closeModalButtons.length) {
+    closeModalButtons.forEach(btn => btn.addEventListener('click', () => closeModal(btn.closest('.modal'))));
+  }
+  window.addEventListener('click', (e) => { if (e.target.classList?.contains('modal')) closeModal(e.target); });
+
+  // ===== E-mail/hasło =====
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const email = document.getElementById('loginEmail').value.trim();
+      const password = document.getElementById('loginPassword').value;
+      try {
+        await signInWithEmailAndPassword(auth, email, password);
+      } catch (error) {
+        alert('Błąd logowania: ' + (error?.message || 'nieznany'));
+      }
+    });
+  }
+
+  if (registerForm) {
+    registerForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const name = document.getElementById('registerName').value.trim();
+      const email = document.getElementById('registerEmail').value.trim();
+      const password = document.getElementById('registerPassword').value;
+      const confirmPassword = document.getElementById('registerConfirmPassword').value;
+
+      if (password !== confirmPassword) {
+        alert('Hasła nie są identyczne!');
+        return;
+      }
+      try {
+        const { user } = await createUserWithEmailAndPassword(auth, email, password);
+        if (name) await updateProfile(user, { displayName: name });
+        // utwórz dokument użytkownika (jeśli nie istnieje)
+        await setDoc(doc(db, "users", user.uid), {
+          name: name || null,
+          email,
+          createdAt: new Date(),
+          provider: "password"
+        }, { merge: true });
+      } catch (error) {
+        alert('Błąd rejestracji: ' + (error?.message || 'nieznany'));
+      }
+    });
+  }
+
+  // ===== Google login (oba przyciski) =====
+  async function signInWithGoogleSmart() {
+    // protokół musi być http/https na web
+    const okProtocol = ['http:', 'https:'].includes(location.protocol);
+    if (!okProtocol) {
+      alert('Uruchom stronę przez http/https (np. GitHub Pages), nie z pliku (file://).');
+      return;
+    }
+    // iOS/Safari – częściej redirect, popup bywa blokowany
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+    try {
+      if (isIOS) {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        await signInWithPopup(auth, googleProvider);
+        closeModal(loginModal); closeModal(registerModal);
+      }
+    } catch (err) {
+      console.error('Google sign-in error:', err);
+      if (err?.code === 'auth/popup-blocked' ||
+          err?.code === 'auth/operation-not-supported-in-this-environment') {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        alert('Błąd logowania przez Google: ' + (err?.message || 'nieznany'));
+      }
+    }
+  }
+
+  [googleLoginBtn, googleLoginBtn2].forEach(btn => {
+    if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); signInWithGoogleSmart(); });
+  });
+
+  // ===== Wylogowanie =====
+  if (logoutBtn) logoutBtn.addEventListener('click', async () => { try { await auth.signOut(); } catch(e){} });
+
+  // ===== Dodatkowo: pokaż ostrzeżenie, jeśli domena nie jest dodana =====
+  checkAuthorizedDomain();
+</script>
+
+
 </body>
 </html>
