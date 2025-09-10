@@ -15,7 +15,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
-    import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, getDoc, doc } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -327,6 +327,11 @@
         right: calc(env(safe-area-inset-right, 0px) + var(--corner-right));
       }
     }
+	
+	.disabled-field {
+  opacity: .5;
+  pointer-events: none; /* brak interakcji */
+}
   </style>
 </head>
 <body onload="loadGoogleMaps()">
@@ -801,6 +806,7 @@ function buildFormData(points) {
     base.userUid = user?.uid || '';
     base.userEmail = user?.email || '';
     base.city = city;                                    // <-- DODAJ TO
+	base.phone = phone; // <— DODAJ TO, aby mieć numer także przy ogłoszeniu
   } else {
     base.city = city;
     base.firstName = firstName;
@@ -866,24 +872,49 @@ async function saveToDatabase() {
 function toggleFieldsForAuth(user) {
   isLoggedIn = !!user;
 
-  // ukrywamy tylko: imię, telefon, e-mail
-  const toToggle = ['#firstName', '#phone', '#email'];
+  // Trzy aktywne pola dla zalogowanych:
+  const activeForLoggedIn = ['#phone', '#city', '#price'];
+
+  // Wszystkie „inne” pola na formularzu, które chcemy wygasić (jeśli są):
+  const others = ['#firstName', '#email'];
 
   if (isLoggedIn) {
-    toToggle.forEach(sel => $(sel).prop('required', false).closest('.mb-3').addClass('d-none'));
+    // TELEFON widoczny i edytowalny (autouzupełnimy w fetchAndPrefillPhone)
+    $('#phone').prop('required', false)
+               .closest('.mb-3').removeClass('d-none disabled-field');
 
-    // MIEJSCOWOŚĆ zostaje widoczna i wymagana
-    $('#city').prop('required', true).closest('.mb-3').removeClass('d-none');
+    // MIEJSCOWOŚĆ i CENA widoczne i aktywne
+    $('#city').prop('required', true)
+              .closest('.mb-3').removeClass('d-none disabled-field');
+    $('#price').prop('required', false)
+               .closest('.mb-3').removeClass('d-none disabled-field');
 
-    // zgody chowamy jak wcześniej
+    // POZOSTAŁE wygaszamy (widoczne, ale nieaktywne)
+    others.forEach(sel => {
+      const $wrap = $(sel).closest('.mb-3');
+      $(sel).prop('required', false).prop('disabled', true);
+      $wrap.removeClass('d-none').addClass('disabled-field');
+    });
+
+    // Zgody chowamy jak wcześniej
     $('#selectAllConsents').closest('.form-check').addClass('d-none');
     $('#termsConsent').prop('required', false).closest('.form-check').addClass('d-none');
     $('#marketingConsent').closest('.form-check').addClass('d-none');
+
+    // Dociągnij numer telefonu z bazy (autouzupełnianie)
+    fetchAndPrefillPhone(user);
+
   } else {
-    // pokaż wszystkie pola
-    toToggle.concat('#city').forEach(sel => {
-      $(sel).prop('required', true).closest('.mb-3').removeClass('d-none');
+    // Niezalogowany: wszystko normalnie widoczne i aktywne
+    ['#firstName', '#phone', '#email', '#city', '#price'].forEach(sel => {
+      const $wrap = $(sel).closest('.mb-3');
+      $(sel).prop('disabled', false).prop('required', true);
+      $wrap.removeClass('d-none disabled-field');
     });
+    // telefon bezwzględnie niech zostanie wymagany tylko dla niezalogowanych
+    $('#phone').prop('required', true);
+
+    // Zgody wracają
     $('#selectAllConsents').closest('.form-check').removeClass('d-none');
     $('#termsConsent').prop('required', true).closest('.form-check').removeClass('d-none');
     $('#marketingConsent').closest('.form-check').removeClass('d-none');
