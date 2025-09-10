@@ -1649,7 +1649,7 @@ footer { padding: 2.5rem 0 1.25rem; }
   .hero { padding: 5.5rem 0 2rem; }
   .hero-text h1 { font-size: 1.6rem; }
   header { top: 0; }
-  .nav-menu { top: 52px; padding: 1.1rem; }
+  .nav-menu { top: 82px; padding: 1.1rem; }
   .nav-menu .nav-link { font-size: 0.95rem; margin-bottom: 0.7rem; }
   .mobile-add-offer { font-size: 0.85rem; padding: 0.35rem 0.7rem; }
 }
@@ -1912,9 +1912,13 @@ footer { padding: 2.5rem 0 1.25rem; }
 }
 	
 	
-	
+body.menu-open { overflow: hidden; }	
 	
   </style>
+  
+
+  
+  
 </head>
 <body>
   <!-- Top Navbar - tylko na komputerze -->
@@ -2650,7 +2654,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
   const googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-  // DOM
+  // --- DOM ---
   const authButtons   = document.getElementById('authButtons');
   const userMenu      = document.getElementById('userMenu');
   const loginBtn      = document.getElementById('loginBtn');
@@ -2673,23 +2677,54 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
   const googleBtnRegister = document.getElementById('googleLoginBtn');
   const googleBtnLogin    = document.getElementById('googleLoginBtnLogin');
 
-  // Domena (hint UI)
+  // Linki z menu mobilnego + samo menu
+  const loginLink     = document.getElementById('loginLink');
+  const registerLink  = document.getElementById('registerLink');
+  const navMenu       = document.querySelector('.nav-menu');
+
+  // --- POMOCNICZE UI ---
+  const openModal  = (m) => m && (m.style.display = 'flex');
+  const closeModal = (m) => m && (m.style.display = 'none');
+
+  // Pokaż ostrzeżenie o domenie (jeśli nie jest autoryzowana w Firebase)
   const domainWarning = document.getElementById('domainWarning');
   const okDomains = ['localhost','127.0.0.1','trainingtwenty5.github.io','twojadomena.pl'];
   if (domainWarning && !okDomains.includes(location.hostname)) domainWarning.style.display = 'block';
 
-  // Modale
-  const openModal  = (m) => m && (m.style.display = 'flex');
-  const closeModal = (m) => m && (m.style.display = 'none');
-
+  // --- HANDLERY MODALI (desktop) ---
   loginBtn    && loginBtn.addEventListener('click', () => openModal(loginModal));
   registerBtn && registerBtn.addEventListener('click', () => openModal(registerModal));
-  switchToRegister && switchToRegister.addEventListener('click', (e) => { e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
-  switchToLogin    && switchToLogin.addEventListener('click',    (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
-  closeBtns.forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
-  window.addEventListener('click', (e) => { if (e.target.classList?.contains('modal')) closeModal(e.target); });
 
-  // Przyjazne błędy
+  // --- HANDLERY MODALI (mobile: z hamburgera) ---
+  loginLink && loginLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    navMenu?.classList.remove('active');
+    document.body.classList.remove('menu-open');
+    openModal(loginModal);
+  });
+
+  registerLink && registerLink.addEventListener('click', (e) => {
+    e.preventDefault();
+    navMenu?.classList.remove('active');
+    document.body.classList.remove('menu-open');
+    openModal(registerModal);
+  });
+
+  // Przełączanie między modalami
+  switchToRegister && switchToRegister.addEventListener('click', (e) => {
+    e.preventDefault(); closeModal(loginModal);  openModal(registerModal);
+  });
+  switchToLogin && switchToLogin.addEventListener('click', (e) => {
+    e.preventDefault(); closeModal(registerModal); openModal(loginModal);
+  });
+
+  // Zamknięcie X i klik w tło
+  closeBtns.forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
+  window.addEventListener('click', (e) => {
+    if (e.target.classList?.contains('modal')) closeModal(e.target);
+  });
+
+  // --- ŁADNE BŁĘDY ---
   const niceErr = (err) => {
     switch (err?.code) {
       case 'auth/invalid-email': return 'Nieprawidłowy adres e-mail.';
@@ -2705,7 +2740,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     }
   };
 
-  // E-mail/hasło
+  // --- E-mail/hasło ---
   loginForm && loginForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     const email = document.getElementById('loginEmail').value.trim();
@@ -2724,14 +2759,17 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, pass1);
       if (name) await updateProfile(user, { displayName: name });
-      await setDoc(doc(db, "users", user.uid), { name: name || null, email, createdAt: new Date(), provider: 'password' }, { merge: true });
+      await setDoc(doc(db, "users", user.uid), {
+        name: name || null, email, createdAt: new Date(), provider: 'password'
+      }, { merge: true });
       closeModal(registerModal);
     } catch (err) { alert(niceErr(err)); }
   });
 
-  // Google
+  // --- Google ---
   async function signInWithGoogleSmart() {
-    if (!['http:', 'https:'].includes(location.protocol)) return alert('Uruchom stronę przez http/https (nie file://).');
+    if (!['http:', 'https:'].includes(location.protocol))
+      return alert('Uruchom stronę przez http/https (nie file://).');
     try {
       const res = await signInWithPopup(auth, googleProvider);
       const user = res.user;
@@ -2753,12 +2791,13 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     btn && btn.addEventListener('click', (e) => { e.preventDefault(); signInWithGoogleSmart(); })
   );
 
-  // Stan logowania + wejście do "Moje Oferty"
+  // --- STAN LOGOWANIA ---
   onAuthStateChanged(auth, async (user) => {
     if (user) {
       authButtons && (authButtons.style.display = 'none');
       userMenu    && (userMenu.style.display   = 'flex');
       userDashboard && (userDashboard.style.display = 'block');
+
       accountBtn  && (accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${user.displayName || user.email}`);
       accountBtn  && accountBtn.addEventListener('click', () => {
         location.hash = '#userDashboard';
@@ -2775,7 +2814,12 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     }
   });
 
-  // --- Miękkie usuwanie (Ukryj) jednej działki w dokumencie ---
+  // --- WYLOGOWANIE ---
+  logoutBtn && logoutBtn.addEventListener('click', async () => {
+    try { await signOut(auth); } catch(_) {}
+  });
+
+  // --- „Miękkie usuwanie” i ładowanie ofert (jeśli używasz) ---
   async function softDeletePlot(offerId, plotIndex, plotTitle, cardEl) {
     try {
       const ref  = doc(db, "propertyListings", offerId);
@@ -2786,25 +2830,21 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
 
       const updated = [...data.plots];
       updated[plotIndex] = { ...updated[plotIndex], mock: false };
-
       await updateDoc(ref, { plots: updated });
 
-      // usuń z UI natychmiast
       if (cardEl?.parentNode) cardEl.parentNode.removeChild(cardEl);
+      window.showToast?.(`Oferta „${plotTitle || 'Działka'}” została usunięta.`, 'success');
 
-      showToast(`Oferta „${plotTitle || 'Działka'}” została usunięta.`, 'success');
-      // Jeżeli lista stała się pusta – doładuj
-      if (!userOffers.querySelector('.offer-card')) {
+      if (!document.getElementById('userOffers')?.querySelector('.offer-card')) {
         const user = auth.currentUser;
         if (user) loadUserOffers(user.email, user.uid);
       }
     } catch (err) {
       console.error("softDeletePlot:", err);
-      showToast("Nie udało się usunąć oferty: " + (err.message || ''), 'error');
+      window.showToast?.("Nie udało się usunąć oferty: " + (err.message || ''), 'error');
     }
   }
 
-  // --- Ładowanie ofert użytkownika (pokazuje tylko aktywne: mock !== false) ---
   async function loadUserOffers(email, uid) {
     if (!userOffers) return;
     userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
@@ -2849,7 +2889,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
       if (Array.isArray(offer.plots) && offer.plots.length) {
         offer.plots
           .map((plot, originalIndex) => ({ plot, originalIndex }))
-          .filter(({ plot }) => plot?.mock !== false) // tylko aktywne
+          .filter(({ plot }) => plot?.mock !== false)
           .forEach(({ plot, originalIndex }, i) => {
             const city  = offer.city || offer.location?.city || 'Nie podano';
             const area  = Number(plot.pow_dzialki_m2_uldk ?? plot.area ?? plot.areaM2 ?? 0);
@@ -2870,7 +2910,6 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
                 </p>
               </div>
               <div class="offer-actions">
-                <!-- Szczegóły przed Edytuj -->
                 <a class="btn btn-accent btn-sm details-link" target="_blank" href="${detailsUrl}">
                   <i class="fas fa-info-circle"></i> Szczegóły
                 </a>
@@ -2882,21 +2921,18 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
                 </button>
               </div>`;
 
-            // Klik w KAFELEK → powiększ do zasięgu (lub marker)
             el.addEventListener('click', (e) => {
-              if (e.target.closest('.offer-actions')) return; // pomiń klik w przyciski
+              if (e.target.closest('.offer-actions')) return;
               window.focusOfferOnMap && window.focusOfferOnMap(docId, originalIndex, { preferBounds: true });
             });
 
-            // Edycja
             el.querySelector('.edit-btn')?.addEventListener('click', () => {
               window.location.href = `dodaj.html?edit=${docId}&plot=${originalIndex}`;
             });
 
-            // Usunięcie (soft delete)
             el.querySelector('.delete-btn')?.addEventListener('click', async () => {
               const title = plot.Id || `Działka ${i+1}`;
-              const ok = await showConfirm({
+              const ok = await window.showConfirm?.({
                 title: 'Usunąć ofertę?',
                 message: `Czy na pewno chcesz usunąć ofertę „${title}”?`,
                 yesText: 'Usuń',
@@ -2911,18 +2947,12 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
       }
     });
 
-    // Jeżeli po filtrze nic nie ma
     if (!userOffers.querySelector('.offer-card')) {
       userOffers.innerHTML = '<p>Nie masz jeszcze żadnych aktywnych ofert.</p>';
     }
   }
 
-  // Wylogowanie
-  logoutBtn && logoutBtn.addEventListener('click', async () => {
-    try { await signOut(auth); } catch(_) {}
-  });
-
-  // Eksport dla innych skryptów
+  // --- EXPORTY DLA ZWYKŁYCH SKRYPTÓW (jeśli używasz poza module) ---
   window.db = db;
   window.collection = collection;
   window.getDocs = getDocs;
@@ -2931,7 +2961,35 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
 </script>
 
 
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const navMenu = document.querySelector('.nav-menu');
+  const mobileAuth = document.querySelector('.mobile-auth');
 
+  if (!mobileMenuBtn || !navMenu) return;
+
+  const toggleMenu = () => {
+    navMenu.classList.toggle('active');
+    const open = navMenu.classList.contains('active');
+    if (mobileAuth) mobileAuth.style.display = open ? 'flex' : 'none';
+    mobileMenuBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+    document.body.classList.toggle('menu-open', open);
+  };
+
+  mobileMenuBtn.addEventListener('click', toggleMenu);
+
+  // opcjonalnie: zamykaj menu po kliknięciu w link
+  navMenu.querySelectorAll('a').forEach(a => 
+    a.addEventListener('click', () => {
+      navMenu.classList.remove('active');
+      if (mobileAuth) mobileAuth.style.display = 'none';
+      mobileMenuBtn.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('menu-open');
+    })
+  );
+});
+</script>
 
 
 </body>
