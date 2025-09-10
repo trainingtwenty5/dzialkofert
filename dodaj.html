@@ -176,7 +176,7 @@
 
 #map-mobile {
   width: 100%;
-  height: 600px;  /* większa wysokość */
+  height: 500px;  /* większa wysokość */
   border-radius: 0;
 }
 
@@ -191,11 +191,18 @@
   }
 }
 
+/* Desktop: na telefonie chowamy overlay desktopowy */
 @media (max-width: 992px) {
-  #map {
+  .map-overlay-desktop {
     display: none;
   }
 }
+
+/* Mobile: zawsze widoczny */
+.map-overlay-mobile {
+  display: flex;
+}
+
 
   </style>
 </head>
@@ -203,16 +210,16 @@
 <div class="toast-container position-fixed top-0 end-0 p-3" style="z-index: 1100"></div>
   <div class="container-main">
     <!-- Mapa -->
-    <div class="map-container">
-      <div id="map"></div>
-      <div class="map-overlay">
-        <button id="clearPlotsBtn" class="btn-overlay">🗑️ Wyczyść punkty</button>
-		<div class="form-check form-switch">
-		  <input class="form-check-input" type="checkbox" id="autoSave">
-		  <label class="form-check-label" for="autoSave">Auto-zapis</label>
-		</div>
-      </div>
+<div class="map-container">
+  <div id="map"></div>
+  <div class="map-overlay map-overlay-desktop">
+    <button id="clearPlotsBtn" class="btn-overlay">🗑️ Wyczyść punkty</button>
+    <div class="form-check form-switch">
+      <input class="form-check-input" type="checkbox" id="autoSave">
+      <label class="form-check-label" for="autoSave">Auto-zapis</label>
     </div>
+  </div>
+</div>
 
     <!-- Formularz -->
     <div class="form-container">
@@ -255,14 +262,14 @@
 </div>
 
 		
-		<!-- MAPA w formularzu -->
+<!-- Mobile -->
 <div class="map-container mb-3 d-lg-none">
   <div id="map-mobile"></div>
-  <div class="map-overlay">
-    <button id="clearPlotsBtn" class="btn-overlay">🗑️ Wyczyść punkty</button>
+  <div class="map-overlay map-overlay-mobile">
+    <button id="clearPlotsBtnMobile" class="btn-overlay">🗑️ Wyczyść punkty</button>
     <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" id="autoSave">
-      <label class="form-check-label" for="autoSave">Auto-zapis</label>
+      <input class="form-check-input" type="checkbox" id="autoSaveMobile">
+      <label class="form-check-label" for="autoSaveMobile">Auto-zapis</label>
     </div>
   </div>
 </div>
@@ -465,6 +472,27 @@ function addWmsLayer(map, layerName) {
 
 
 
+function resizeMobileMap() {
+  if (window.innerWidth < 992) {
+    const formHeight = document.querySelector('.form-container').offsetHeight;
+    const windowHeight = window.innerHeight;
+
+    // wysokość mapy = wysokość ekranu - miejsce na formularz (np. przyciski RODO)
+    const mapHeight = Math.max(300, windowHeight - formHeight - 50);
+
+    document.getElementById('map-mobile').style.height = mapHeight + "px";
+  }
+}
+
+window.addEventListener('resize', resizeMobileMap);
+window.addEventListener('load', resizeMobileMap);
+
+
+
+
+
+
+
 
 
 
@@ -628,7 +656,8 @@ $(document).ready(function() {
     saveToDatabase(); 
   });
 
-  $("#clearPlotsBtn").click(function(){
+  // 🔹 Obsługa "Wyczyść punkty"
+  $("#clearPlotsBtn, #clearPlotsBtnMobile").click(function(){
     selectedPoints = [];
     pointMarkers.forEach(m=>{
       if (m.desktopMarker) m.desktopMarker.setMap(null);
@@ -638,8 +667,8 @@ $(document).ready(function() {
     updateSelectedPointsList();
   });
 
-  // 🔹 Obsługa auto-zapisu
-  $("#autoSave").on("change", function () {
+  // 🔹 Obsługa auto-zapisu (desktop + mobile)
+  $("#autoSave, #autoSaveMobile").on("change", function () {
     if ($(this).is(":checked")) {
       if (!validateForm()) {
         showToast("Aby włączyć Auto-zapis, najpierw uzupełnij wszystkie wymagane pola!", "warning");
@@ -652,6 +681,7 @@ $(document).ready(function() {
     }
   });
 });
+
 
   </script>
 </body>
