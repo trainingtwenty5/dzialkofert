@@ -1540,6 +1540,54 @@ footer {
   }
 }
 	
+/* === NADPISANIA DLA PRAWEJ KOLUMNY I SEKCJI OFERT === */
+.content-container {
+  position: relative;
+  z-index: 2;              /* zawartość zawsze nad mapą */
+  background: #f8f9fa;
+}
+
+.offers-section {
+  height: auto !important; /* nie wymuszaj stałej wysokości */
+  margin-bottom: 24px;     /* oddech przed "Moje Oferty" */
+}
+
+.offers-list,
+.offers-grid {
+  max-height: none !important;  /* pozwól rosnąć, nie ucinać */
+  overflow: visible !important; /* bez wewnętrznych scrolli */
+}
+
+/* "Moje Oferty" – bez nakładania i z marginesem */
+#userDashboard {
+  margin-top: 16px;
+  scroll-margin-top: 140px; /* żeby scroll do sekcji nie chował się pod fixed headerem */
+}
+
+/* na mniejszych ekranach prawa kolumna i tak jest pod mapą – zostaw auto */
+@media (max-width: 992px) {
+  .offers-list, .offers-grid {
+    max-height: none !important;
+    overflow: visible !important;
+  }
+}
+	
+/* MOBILE: pokaż sekcję logowania w rozwijanym menu */
+@media (max-width: 768px) {
+  .mobile-auth{
+    display: none;                /* domyślnie schowaj… */
+    flex-direction: column;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    border-top: 1px solid #eee;
+    padding-top: 1.5rem;
+  }
+  .nav-menu.active .mobile-auth{
+    display: flex;                /* …ale pokaż gdy menu jest rozwinięte */
+  }
+  .nav-menu{ z-index: 1200; }     /* na wszelki wypadek ponad mapą/headerem */
+}
+	
   </style>
 </head>
 <body>
@@ -1603,7 +1651,7 @@ footer {
       <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
       <a href="#contact" class="nav-link">Kontakt</a>
 
-      <div class="mobile-auth" style="display: none;">
+      <div class="mobile-auth">
         <a href="#" id="loginLink" class="nav-link">Zaloguj się</a>
         <a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>
       </div>
@@ -2587,16 +2635,46 @@ footer {
       }
     }
 
-    // Mobile menu toggle
-    const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+document.addEventListener('DOMContentLoaded', function() {
+  const mobileMenuBtn = document.querySelector('.mobile-menu-btn');
+  const navMenu = document.querySelector('.nav-menu');
+  const mobileAuth = document.querySelector('.mobile-auth');
+  
+  mobileMenuBtn.addEventListener('click', function() {
+    navMenu.classList.toggle('active');
+    mobileAuth.style.display = navMenu.classList.contains('active') ? 'flex' : 'none';
+  });
+  
+  // Obsługa kliknięcia w linki logowania/rejestracji
+  document.getElementById('loginLink')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('loginModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+  });
+  
+  document.getElementById('registerLink')?.addEventListener('click', function(e) {
+    e.preventDefault();
+    document.getElementById('registerModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+  });
+});
+
+
+// Skrypt zapobiegający problemom z responsywnością
+let resizeTimer;
+window.addEventListener('resize', () => {
+  document.body.classList.add('resize-animation-stopper');
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(() => {
+    document.body.classList.remove('resize-animation-stopper');
+    // Wymuszenie ponownego renderowania menu
     const navMenu = document.querySelector('.nav-menu');
-    
-    mobileMenuBtn.addEventListener('click', () => {
-      navMenu.classList.toggle('active');
-      mobileMenuBtn.innerHTML = navMenu.classList.contains('active') 
-        ? '<i class="fas fa-times"></i>' 
-        : '<i class="fas fa-bars"></i>';
-    });
+    if (window.innerWidth > 768) {
+      navMenu.classList.remove('active');
+    }
+  }, 400);
+});
+
     
     // FAQ accordion
     const faqItems = document.querySelectorAll('.faq-item');
@@ -2632,6 +2710,57 @@ footer {
         }
       });
     });
+	
+	
+	
+	
+
+  // === DOPISZ DO PIERWSZEGO PLIKU (po Twoim kodzie mobile-menu) ===
+  const mobileAuth = document.querySelector('.mobile-auth');
+  const loginLink  = document.getElementById('loginLink');
+  const registerLink = document.getElementById('registerLink');
+
+  // Pokaż/ukryj logowanie w mobilnym menu
+  function refreshMobileAuthVisibility() {
+    const isMenuOpen = navMenu.classList.contains('active');
+    // jeśli zalogowany -> nie pokazuj; jeśli wylogowany i menu otwarte -> pokaż
+    const user = (typeof auth !== 'undefined') ? auth.currentUser : null;
+    if (window.innerWidth <= 768) {
+      mobileAuth.style.display = (isMenuOpen && !user) ? 'flex' : 'none';
+    } else {
+      mobileAuth.style.display = 'none';
+    }
+  }
+
+  // przy otwieraniu/zamykaniu menu
+  mobileMenuBtn.addEventListener('click', refreshMobileAuthVisibility);
+  window.addEventListener('resize', refreshMobileAuthVisibility);
+
+  // klik w linki otwiera odpowiednie modale
+  loginLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('loginModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+    refreshMobileAuthVisibility();
+    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+  });
+
+  registerLink?.addEventListener('click', (e) => {
+    e.preventDefault();
+    document.getElementById('registerModal').style.display = 'flex';
+    navMenu.classList.remove('active');
+    refreshMobileAuthVisibility();
+    mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
+  });
+
+  // po zmianie stanu logowania odświeżaj widoczność
+  if (typeof onAuthStateChanged === 'function' && typeof auth !== 'undefined') {
+    onAuthStateChanged(auth, () => {
+      refreshMobileAuthVisibility();
+    });
+  }
+
+
   </script>
 </body>
 </html>

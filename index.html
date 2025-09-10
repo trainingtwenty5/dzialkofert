@@ -1161,47 +1161,6 @@ header .logo img {
   }
 }
 
-/* Logo */
-.logo img {
-  height: 50px; /* było 70px */
-  filter: brightness(0) invert(1); /* białe logo */
-}
-
-/* Modal */
-.modal-content {
-  max-width: 360px; /* było 400px */
-  padding: 1.5rem;
-}
-
-/* Social login */
-.social-login .btn {
-  background: white;
-  color: #333;
-  border: 1px solid #ddd;
-  font-weight: 500;
-  transition: all 0.3s ease;
-}
-
-.social-login .btn i {
-  font-size: 1.2rem;
-  margin-right: 8px;
-}
-
-.social-login .btn:hover {
-  background: #f7f7f7;
-  transform: translateY(-2px);
-}
-
-/* Google specjalne kolory ikony */
-.btn-google i {
-  color: #DB4437;
-}
-
-/* Facebook specjalne kolory ikony */
-.btn-facebook i {
-  color: #4267B2;
-}
-
 
   </style>
 </head>
@@ -1384,7 +1343,9 @@ window.addEventListener('resize', () => {
 		  <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
 			<i class="fab fa-google"></i> Kontynuuj z Google
 		  </button>
-
+		  <button type="button" class="btn btn-facebook w-100" id="facebookLoginBtn">
+			<i class="fab fa-facebook-f"></i> Kontynuuj z Facebook
+		  </button>
 		</div>
       
       <div class="domain-warning" id="domainWarning">
@@ -1799,34 +1760,7 @@ window.addEventListener('resize', () => {
       }
     });
 
-    // Facebook login with error handling for unauthorized domain
-    facebookLoginBtn.addEventListener('click', async () => {
-      try {
-        const result = await signInWithPopup(auth, facebookProvider);
-        const user = result.user;
-        
-        // Check if user exists in Firestore, if not create a record
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, "users", user.uid), {
-            name: user.displayName,
-            email: user.email,
-            createdAt: new Date(),
-            provider: "facebook"
-          });
-        }
-        
-        console.log('Zalogowano przez Facebook:', user);
-      } catch (error) {
-        console.error("Błąd logowania przez Facebook:", error);
-        
-        if (error.code === 'auth/unauthorized-domain') {
-          alert('Logowanie przez Facebook nie jest dostępne na tej domenie. Skontaktuj się z administratorem, aby dodać domenę do konfiguracji Firebase.');
-        } else {
-          alert('Błąd logowania przez Facebook: ' + error.message);
-        }
-      }
-    });
+    
 
     // Logout
     logoutBtn.addEventListener('click', () => {
