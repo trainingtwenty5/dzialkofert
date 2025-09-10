@@ -2746,7 +2746,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     const email = document.getElementById('loginEmail').value.trim();
     const pass  = document.getElementById('loginPassword').value;
     try { await signInWithEmailAndPassword(auth, email, pass); closeModal(loginModal); }
-    catch (err) { alert(niceErr(err)); }
+    catch (err) { showToast(niceErr(err)); }
   });
 
   registerForm && registerForm.addEventListener('submit', async (e) => {
@@ -2755,7 +2755,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     const email = document.getElementById('registerEmail').value.trim();
     const pass1 = document.getElementById('registerPassword').value;
     const pass2 = document.getElementById('registerConfirmPassword').value;
-    if (pass1 !== pass2) return alert('Hasła nie są identyczne!');
+    if (pass1 !== pass2) return showToast('Hasła nie są identyczne!');
     try {
       const { user } = await createUserWithEmailAndPassword(auth, email, pass1);
       if (name) await updateProfile(user, { displayName: name });
@@ -2763,13 +2763,13 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
         name: name || null, email, createdAt: new Date(), provider: 'password'
       }, { merge: true });
       closeModal(registerModal);
-    } catch (err) { alert(niceErr(err)); }
+    } catch (err) { showToast(niceErr(err)); }
   });
 
   // --- Google ---
   async function signInWithGoogleSmart() {
     if (!['http:', 'https:'].includes(location.protocol))
-      return alert('Uruchom stronę przez http/https (nie file://).');
+      return showToast('Uruchom stronę przez http/https (nie file://).');
     try {
       const res = await signInWithPopup(auth, googleProvider);
       const user = res.user;
@@ -2783,7 +2783,7 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
       if (['auth/popup-blocked','auth/operation-not-supported-in-this-environment'].includes(err?.code)) {
         await signInWithRedirect(auth, googleProvider);
       } else {
-        alert(niceErr(err));
+        showToast(niceErr(err));
       }
     }
   }
@@ -2846,30 +2846,37 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
   }
 
   async function loadUserOffers(email, uid) {
-    if (!userOffers) return;
-    userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
+  try {
+    const emailFields = ['email', 'ownerEmail', 'userEmail', 'createdByEmail', 'contactEmail'];
+    const idFields    = ['uid', 'userId', 'ownerId', 'createdBy'];
 
-    const emailFields = ['email','ownerEmail','userEmail','createdByEmail','contactEmail'];
-    const idFields    = ['uid','userId','ownerId','createdBy'];
+    userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
 
     let snap = null;
 
+    // 1) spróbuj po emailu – po kolei po znanych polach
     if (email) {
       for (const f of emailFields) {
         try {
           const q1 = query(collection(db, "propertyListings"), where(f, "==", email));
           const s1 = await getDocs(q1);
           if (!s1.empty) { snap = s1; break; }
-        } catch(e) { console.warn('Query by email failed for field', f, e); }
+        } catch (e) {
+          console.warn('Query by email failed for field', f, e);
+        }
       }
     }
+
+    // 2) jeżeli nic – spróbuj po uid (różne nazwy pól)
     if (!snap && uid) {
       for (const f of idFields) {
         try {
           const q2 = query(collection(db, "propertyListings"), where(f, "==", uid));
           const s2 = await getDocs(q2);
           if (!s2.empty) { snap = s2; break; }
-        } catch(e) { console.warn('Query by uid failed for field', f, e); }
+        } catch (e) {
+          console.warn('Query by uid failed for field', f, e);
+        }
       }
     }
 
@@ -2878,79 +2885,70 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
     if (!snap || snap.empty) {
       userOffers.innerHTML = `
         <p>Nie masz jeszcze żadnych ofert.</p>
-        <p style="font-size:.9em;color:#666">Upewnij się, że dokumenty w <code>propertyListings</code> są powiązane z Twoim kontem (pole <code>email</code> lub <code>uid</code>).</p>`;
+        <p style="font-size:.9em;color:#666">
+          Upewnij się, że dokumenty w <code>propertyListings</code> mają jedno z pól:
+          <code>${['email','ownerEmail','userEmail','createdByEmail','contactEmail','uid','userId','ownerId','createdBy'].join(', ')}</code>
+          powiązane z Twoim kontem.
+        </p>`;
       return;
     }
 
+    // 3) render
     snap.forEach((docu) => {
       const offer = docu.data();
-      const docId = docu.id;
+      const offerId = docu.id;
+      if (!Array.isArray(offer.plots) || offer.plots.length === 0) return;
 
-      if (Array.isArray(offer.plots) && offer.plots.length) {
-        offer.plots
-          .map((plot, originalIndex) => ({ plot, originalIndex }))
-          .filter(({ plot }) => plot?.mock !== false)
-          .forEach(({ plot, originalIndex }, i) => {
-            const city  = offer.city || offer.location?.city || 'Nie podano';
-            const area  = Number(plot.pow_dzialki_m2_uldk ?? plot.area ?? plot.areaM2 ?? 0);
-            const price = Number(plot.price ?? 0);
-            const ppm2  = price && area ? Math.round(price/area) : 0;
+      const activePlots = offer.plots
+        .map((plot, originalIndex) => ({ plot, originalIndex }))
+        .filter(({ plot }) => plot?.mock !== false); // pokazuj tylko aktywne
 
-            const detailsUrl = `oferta.html?id=${docId}&plot=${originalIndex}`;
+      activePlots.forEach(({ plot, originalIndex }, i) => {
+        const price = Number(plot.price || 0);
+        const area  = Number(plot.pow_dzialki_m2_uldk || plot.area || plot.areaM2 || 0);
+        const ppm2  = price && area ? Math.round(price/area) : 0;
+        const detailsUrl = `oferta.html?id=${offerId}&plot=${originalIndex}`;
 
-            const el = document.createElement('div');
-            el.className = 'offer-card';
-            el.innerHTML = `
-              <h3 class="offer-title" title="Dokument: ${docId}">${plot.Id || `Działka ${i+1}`}</h3>
-              <div class="offer-details">
-                <p><strong>Lokalizacja:</strong> ${city}</p>
-                <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
-                <p><strong>Cena całkowita:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
-                  ${ppm2 ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2.toLocaleString('pl-PL')} zł/m²</span>`:''}
-                </p>
-              </div>
-              <div class="offer-actions">
-                <a class="btn btn-accent btn-sm details-link" target="_blank" href="${detailsUrl}">
-                  <i class="fas fa-info-circle"></i> Szczegóły
-                </a>
-                <button class="btn btn-primary btn-sm edit-btn">
-                  <i class="fas fa-edit"></i> Edytuj
-                </button>
-                <button class="btn btn-secondary btn-sm delete-btn">
-                  <i class="fas fa-trash"></i> Usuń
-                </button>
-              </div>`;
-
-            el.addEventListener('click', (e) => {
-              if (e.target.closest('.offer-actions')) return;
-              window.focusOfferOnMap && window.focusOfferOnMap(docId, originalIndex, { preferBounds: true });
-            });
-
-            el.querySelector('.edit-btn')?.addEventListener('click', () => {
-              window.location.href = `dodaj.html?edit=${docId}&plot=${originalIndex}`;
-            });
-
-            el.querySelector('.delete-btn')?.addEventListener('click', async () => {
-              const title = plot.Id || `Działka ${i+1}`;
-              const ok = await window.showConfirm?.({
-                title: 'Usunąć ofertę?',
-                message: `Czy na pewno chcesz usunąć ofertę „${title}”?`,
-                yesText: 'Usuń',
-                noText: 'Anuluj'
-              });
-              if (!ok) return;
-              await softDeletePlot(docId, originalIndex, title, el);
-            });
-
-            userOffers.appendChild(el);
-          });
-      }
+        const el = document.createElement('div');
+        el.className = 'offer-card';
+        el.innerHTML = `
+          <h3 class="offer-title">${plot.Id || `Działka ${i+1}`}</h3>
+          <div class="offer-details">
+            <p><strong>Lokalizacja:</strong> ${offer.city || offer.location?.city || 'Nie podano'}</p>
+            ${area  ? `<p><strong>Powierzchnia:</strong> ${area.toLocaleString('pl-PL')} m²</p>` : ''}
+            ${price ? `<p><strong>Cena całkowita:</strong> ${price.toLocaleString('pl-PL')} zł
+              ${ppm2 ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2.toLocaleString('pl-PL')} zł/m²</span>`:''}
+            </p>` : ''}
+          </div>
+          <div class="offer-actions">
+            <a class="btn btn-accent btn-sm" target="_blank" href="${detailsUrl}">
+              <i class="fas fa-info-circle"></i> Szczegóły
+            </a>
+            <button class="btn btn-primary btn-sm" onclick="window.location.href='dodaj.html?edit=${offerId}&plot=${originalIndex}'">
+              <i class="fas fa-edit"></i> Edytuj
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="deletePlot && deletePlot('${offerId}', ${originalIndex}, '${(plot.Id||`Działka ${i+1}`).replace(/'/g,"\\'")}')">
+              <i class="fas fa-trash"></i> Usuń
+            </button>
+          </div>
+        `;
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.offer-actions')) return;
+          window.focusOfferOnMap?.(offerId, originalIndex);
+        });
+        userOffers.appendChild(el);
+      });
     });
 
     if (!userOffers.querySelector('.offer-card')) {
       userOffers.innerHTML = '<p>Nie masz jeszcze żadnych aktywnych ofert.</p>';
     }
+  } catch (error) {
+    console.error("Error loading offers: ", error);
+    userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
   }
+}
+
 
   // --- EXPORTY DLA ZWYKŁYCH SKRYPTÓW (jeśli używasz poza module) ---
   window.db = db;

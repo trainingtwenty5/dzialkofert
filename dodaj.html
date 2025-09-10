@@ -518,7 +518,7 @@ function showToast(message, type = "info") {
   if (type === "error")   bgClass = "bg-danger";
 
   const toast = $(`
-    <div class="toast align-items-center text-white ${bgClass} border-0" role="alert" aria-live="assertive" aria-atomic="true">
+    <div class="toast align-items-center text-white ${bgClass} border-0" role="showToast" aria-live="assertive" aria-atomic="true">
       <div class="d-flex">
         <div class="toast-body">${message}</div>
         <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
