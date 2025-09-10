@@ -173,12 +173,13 @@
   gap: 0.5rem; /* odstęp między suwakiem a napisem */
 }
 
+
 #map-mobile {
   width: 100%;
-  height: 300px;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  height: 600px;  /* większa wysokość */
+  border-radius: 0;
 }
+
 
 @media (min-width: 992px) {
   #map-mobile { display: none; } /* ukryj mapę mobilną na desktopie */
@@ -377,45 +378,44 @@ let desktopMap, mobileMap;
 let selectedPoints = [];
 let pointMarkers = []; // {id, desktopMarker, mobileMarker}
 
+
 function initMap() {
+  // sprawdzamy, czy to telefon (np. < 992px)
+  const isMobile = window.innerWidth < 992;
+
   const mapOptions = {
     center: { lat: 51.63538575429843, lng: 16.45740592647929 },
     zoom: 17,
     fullscreenControl: false,
-  styles: [
-      // Ukryj wszystkie etykiety
+    streetViewControl: !isMobile, // 🔹 Street View tylko na desktopie
+    styles: [
       {
         featureType: "all",
         elementType: "labels",
         stylers: [{ visibility: "off" }]
       },
-      // 🔹 Przywróć nazwy miast
       {
         featureType: "administrative.locality",
         elementType: "labels.text",
         stylers: [{ visibility: "on" }]
       },
-      // 🔹 Przywróć nazwy rzek
       {
         featureType: "water",
         elementType: "labels.text",
         stylers: [{ visibility: "on" }]
       },
-      // 🔹 Przywróć nazwy ulic
       {
         featureType: "road",
         elementType: "labels.text",
         stylers: [{ visibility: "on" }]
       }
     ]
-	
   };
 
   if (document.getElementById('map')) {
     desktopMap = new google.maps.Map(document.getElementById('map'), mapOptions);
     desktopMap.addListener('click', e => addPointToSelection(e.latLng));
 
-    // 🔹 Dodaj WMS-y
     addWmsLayer(desktopMap, "dzialki");
     addWmsLayer(desktopMap, "numery_dzialek");
   }
@@ -424,7 +424,6 @@ function initMap() {
     mobileMap = new google.maps.Map(document.getElementById('map-mobile'), mapOptions);
     mobileMap.addListener('click', e => addPointToSelection(e.latLng));
 
-    // 🔹 Dodaj WMS-y
     addWmsLayer(mobileMap, "dzialki");
     addWmsLayer(mobileMap, "numery_dzialek");
   }
