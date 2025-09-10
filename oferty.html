@@ -1831,6 +1831,89 @@ footer { padding: 2.5rem 0 1.25rem; }
   .gm-style-iw-c { padding: 8px !important; }
 }
 	
+	
+/* === Pretty confirm modal === */
+.confirm-modal {
+  position: fixed;
+  inset: 0;
+  display: none;                 /* toggled to flex in JS */
+  align-items: center;
+  justify-content: center;
+  background: rgba(15, 23, 42, 0.45);  /* var(--darker) z przeźroczystością */
+  z-index: 1300;
+  padding: 16px;
+}
+
+.confirm-box {
+  width: 100%;
+  max-width: 420px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: var(--shadow-lg);
+  padding: 20px 20px 16px;
+  transform: scale(0.98);
+  opacity: 0;
+  transition: transform .15s ease, opacity .15s ease;
+}
+
+.confirm-modal.show .confirm-box {
+  transform: scale(1);
+  opacity: 1;
+}
+
+.confirm-title {
+  margin: 0 0 8px;
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--darker);
+}
+
+.confirm-message {
+  margin: 0 0 16px;
+  color: #475569;
+  font-size: .95rem;
+  line-height: 1.5;
+}
+
+.confirm-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+}
+
+.confirm-btn {
+  border: none;
+  border-radius: 8px;
+  padding: .55rem 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform .08s ease, box-shadow .08s ease, background .2s ease, color .2s ease;
+}
+
+.confirm-btn:hover { transform: translateY(-1px); }
+
+.confirm-cancel {
+  background: #eef2f7;
+  color: #0f172a;
+}
+
+.confirm-cancel:hover {
+  background: #e6ebf3;
+}
+
+.confirm-yes {
+  background: var(--primary, #1e6fba);
+  color: #fff;
+  box-shadow: var(--shadow-sm);
+}
+
+.confirm-yes:hover {
+  box-shadow: var(--shadow-md);
+}
+	
+	
+	
+	
   </style>
 </head>
 <body>
