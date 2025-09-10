@@ -1274,6 +1274,32 @@ footer { padding: 2.5rem 0 1.25rem; }
   .hero-text h1 { font-size: 1.45rem; }
 }
 
+/* wyśrodkowany pasek akcji tam, gdzie trzeba */
+.offer-actions.center { 
+  display: flex; 
+  justify-content: center; 
+  gap: 0.5rem;
+}
+
+/* InfoWindow: przyciski w środku */
+.map-info-window .mini-actions.center { 
+  justify-content: center; 
+}
+
+/* mini-przycisk w InfoWindow – trochę ciaśniejszy */
+.map-info-window .btn-mini {
+  display: inline-block; padding: .35rem .6rem; border-radius: 6px; border: 0;
+  background: var(--primary); color: #fff; font-size: .8rem; cursor: pointer;
+  text-decoration: none;
+}
+
+/* mniejszy X i ciaśniej na telefonach (masz już, ale zostawiam na wszelki wypadek) */
+@media (max-width: 768px){
+  .gm-ui-hover-effect { transform: scale(.75) !important; }
+  .gm-style-iw-c { padding: 8px !important; }
+}
+
+
   </style>
 </head>
 <body>
@@ -1843,68 +1869,78 @@ window.addEventListener('resize', () => {
 
   // 11) Oferty (po e-mailu)
   async function loadUserOffers(email) {
-    try {
-      if (!userOffers) return;
-      userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
-      const q = query(collection(db, "propertyListings"), where("email", "==", email));
-      const snap = await getDocs(q);
-      userOffers.innerHTML = '';
-      if (snap.empty) { userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>'; return; }
+  try {
+    const q = query(collection(db, "propertyListings"), where("email", "==", email));
+    const querySnapshot = await getDocs(q);
 
-      snap.forEach((docu) => {
-        const offer = docu.data();
-        if (Array.isArray(offer.plots) && offer.plots.length) {
-          offer.plots
-            .map((plot, originalIndex) => ({ plot, originalIndex }))
-            .filter(({ plot }) => plot.mock !== false)
-            .forEach(({ plot, originalIndex }, i) => {
-              const city = offer.city || offer.location?.city || 'Nie podano';
-              const area = Number(plot.pow_dzialki_m2_uldk ?? plot.area ?? plot.areaM2 ?? 0);
-              const price = Number(plot.price ?? 0);
-              const ppm2  = price && area ? price / area : 0;
-              const el = document.createElement('div');
-              el.className = 'offer-card';
-              el.innerHTML = `
-                <h3 class="offer-title">${plot.Id || `Działka ${i+1}`}</h3>
-                <div class="offer-details">
-                  <p><strong>Lokalizacja:</strong> ${city}</p>
-                  <p><strong>Cena całkowita:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
-                    ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${Math.round(ppm2).toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
-                  <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
-                </div>
-                <div class="offer-actions">
-                  <button class="btn btn-primary btn-sm" onclick="window.location.href='dodaj.html?edit=${docu.id}&plot=${originalIndex}'">
-                    <i class="fas fa-edit"></i> Edytuj
-                  </button>
-                  <button class="btn btn-secondary btn-sm" onclick="alert('Usuń/edytuj w dodaj.html (docId + index)');">
-                    <i class="fas fa-trash"></i> Usuń
-                  </button>
-                </div>`;
-              userOffers.appendChild(el);
-            });
-        } else {
-          const city  = offer.city || offer.location?.city || offer.miejscowosc || offer.miasto || 'Nie podano';
-          const price = Number(offer.price || offer.cena || offer.totalPrice || 0);
-          const area  = Number(offer.areaM2 || offer.powierzchnia || offer.pow_dzialki_m2__c || 0);
-          const ppm2  = price && area ? Math.round(price / area) : 0;
-          const el = document.createElement('div');
-          el.className = 'offer-card';
-          el.innerHTML = `
-            <h3 class="offer-title">${city}</h3>
-            <div class="offer-details">
-              <p><strong>Lokalizacja:</strong> ${city}</p>
-              <p><strong>Cena:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
-                ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2.toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
-              <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
-            </div>`;
-          userOffers.appendChild(el);
-        }
-      });
-    } catch (err) {
-      console.error('Error loading offers:', err);
-      userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
+    userOffers.innerHTML = '';
+
+    if (querySnapshot.empty) {
+      userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>';
+      return;
     }
+
+    querySnapshot.forEach((docSnap) => {
+      const offer = docSnap.data();
+      const offerId = docSnap.id;
+      if (!offer.plots || !offer.plots.length) return;
+
+      const activePlots = offer.plots
+        .map((plot, originalIndex) => ({ plot, originalIndex }))
+        .filter(({ plot }) => plot.mock !== false);
+
+      activePlots.forEach(({ plot, originalIndex }, displayIndex) => {
+        const el = document.createElement('div');
+        el.classList.add('offer-card');
+
+        const price = Number(plot.price || 0);
+        const area  = Number(plot.pow_dzialki_m2_uldk || 0);
+        const ppm2  = price && area ? (price/area).toFixed(2) : "0.00";
+        const plotTitle = plot.Id || `Działka ${displayIndex + 1}`;
+        const detailsUrl = `oferta.html?id=${offerId}&plot=${originalIndex}`;
+
+        el.innerHTML = `
+          <h3 class="offer-title">${plotTitle}</h3>
+          <div class="offer-details">
+            <p><strong>Lokalizacja:</strong> ${offer.city || 'Nie podano'}</p>
+            <p><strong>Telefon:</strong> ${offer.phone || 'Nie podano'}</p>
+            ${area  ? `<p><strong>Powierzchnia:</strong> ${area.toLocaleString('pl-PL')} m²</p>` : ''}
+            ${price ? `<p><strong>Cena całkowita:</strong> ${price.toLocaleString('pl-PL')} zł <span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2} zł/m²</span></p>` : ''}
+          </div>
+          <div class="offer-actions">
+            <a class="btn btn-accent btn-sm" target="_blank" href="${detailsUrl}">
+              <i class="fas fa-info-circle"></i> Szczegóły
+            </a>
+            <button class="btn btn-primary btn-sm" onclick="editOffer('${offerId}', ${originalIndex})">
+              <i class="fas fa-edit"></i> Edytuj
+            </button>
+            <button class="btn btn-secondary btn-sm" onclick="deletePlot('${offerId}', ${originalIndex}, '${plotTitle.replace(/'/g,"\\'")}')">
+              <i class="fas fa-trash"></i> Usuń
+            </button>
+          </div>
+        `;
+
+        // KLIK W KARTĘ → przybliż do markera (ale NIE, gdy klikamy w przyciski / linki)
+        el.addEventListener('click', (e) => {
+          if (e.target.closest('.offer-actions')) return;   // ignoruj klik w akcje
+          if (window.focusOfferOnMap) {
+            window.focusOfferOnMap(offerId, originalIndex);
+          }
+        });
+
+        userOffers.appendChild(el);
+      });
+    });
+
+    if (!userOffers.children.length) {
+      userOffers.innerHTML = '<p>Nie masz jeszcze żadnych aktywnych ofert.</p>';
+    }
+  } catch (error) {
+    console.error("Error loading offers: ", error);
+    userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
   }
+}
+
 </script>
 
 
