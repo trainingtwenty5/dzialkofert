@@ -190,6 +190,12 @@
   }
 }
 
+@media (max-width: 992px) {
+  #map {
+    display: none;
+  }
+}
+
   </style>
 </head>
 <body onload="loadGoogleMaps()">
@@ -373,9 +379,36 @@ let pointMarkers = []; // {id, desktopMarker, mobileMarker}
 
 function initMap() {
   const mapOptions = {
-    center: { lat: 52.0, lng: 19.0 },
-    zoom: 7,
-    fullscreenControl: false
+    center: { lat: 51.63538575429843, lng: 16.45740592647929 },
+    zoom: 17,
+    fullscreenControl: false,
+  styles: [
+      // Ukryj wszystkie etykiety
+      {
+        featureType: "all",
+        elementType: "labels",
+        stylers: [{ visibility: "off" }]
+      },
+      // 🔹 Przywróć nazwy miast
+      {
+        featureType: "administrative.locality",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      // 🔹 Przywróć nazwy rzek
+      {
+        featureType: "water",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      },
+      // 🔹 Przywróć nazwy ulic
+      {
+        featureType: "road",
+        elementType: "labels.text",
+        stylers: [{ visibility: "on" }]
+      }
+    ]
+	
   };
 
   if (document.getElementById('map')) {
