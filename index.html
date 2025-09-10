@@ -19,6 +19,9 @@
   <link rel="icon" type="image/png" sizes="192x192" href="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png">
   <link rel="icon" type="image/png" sizes="512x512" href="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png">
 	
+	
+	
+	
   <style>
     :root {
       --primary: #1e6fba;
@@ -1661,362 +1664,20 @@ window.addEventListener('resize', () => {
     </div>
   </footer>
 
-  <!-- Firebase SDK -->
-  <script type="module">
-    // Import the functions you need from the SDKs you need
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-analytics.js";
-    import { 
-      getAuth, 
-      createUserWithEmailAndPassword, 
-      signInWithEmailAndPassword, 
-      signOut, 
-      onAuthStateChanged,
-      GoogleAuthProvider,
-      FacebookAuthProvider,
-      signInWithPopup,
-      updateProfile
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-auth.js";
-    import { 
-      getFirestore, 
-      collection, 
-      addDoc, 
-      query, 
-      where, 
-      getDocs, 
-      doc, 
-      setDoc,
-      getDoc 
-    } from "https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore.js";
-
-    // Your web app's Firebase configuration
-    const firebaseConfig = {
-      apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
-      authDomain: "base-468e0.firebaseapp.com",
-      projectId: "base-468e0",
-      storageBucket: "base-468e0.firebasestorage.app",
-      messagingSenderId: "829161895559",
-      appId: "1:829161895559:web:d832541aac05b35847ea22"
-    };
-
-    // Initialize Firebase
-    const app = initializeApp(firebaseConfig);
-    const analytics = getAnalytics(app);
-    const auth = getAuth(app);
-    const db = getFirestore(app);
-
-    // PROVIDERS
-    const googleProvider = new GoogleAuthProvider();
-    const facebookProvider = new FacebookAuthProvider();
-
-    // DOM Elements
-    const authButtons = document.getElementById('authButtons');
-    const userMenu = document.getElementById('userMenu');
-    const loginBtn = document.getElementById('loginBtn');
-    const registerBtn = document.getElementById('registerBtn');
-    const accountBtn = document.getElementById('accountBtn');
-    const addOfferBtn = document.getElementById('addOfferBtn');
-    const logoutBtn = document.getElementById('logoutBtn');
-    const loginModal = document.getElementById('loginModal');
-    const registerModal = document.getElementById('registerModal');
-    const closeModalButtons = document.querySelectorAll('.modal-close');
-    const switchToRegister = document.getElementById('switchToRegister');
-    const switchToLogin = document.getElementById('switchToLogin');
-    const loginForm = document.getElementById('loginForm');
-    const registerForm = document.getElementById('registerForm');
-    const userDashboard = document.getElementById('userDashboard');
-    const userOffers = document.getElementById('userOffers');
-    const heroAddOffer = document.getElementById('heroAddOffer');
-    const dashboardAddOffer = document.getElementById('dashboardAddOffer');
-    const googleLoginBtn = document.getElementById('googleLoginBtn');
-    const facebookLoginBtn = document.getElementById('facebookLoginBtn');
-    const domainWarning = document.getElementById('domainWarning');
-
-    // Check if we're on an authorized domain
-    function checkAuthorizedDomain() {
-      const currentDomain = window.location.hostname;
-		const authorizedDomains = [
-		  'trainingtwenty5.github.io',
-		  'localhost' // przydatne do testów lokalnych
-		];
-			  
-      // Add your custom domain here once you configure it in Firebase
-      // authorizedDomains.push('twojadomena.pl');
-      
-      if (!authorizedDomains.includes(currentDomain)) {
-        domainWarning.style.display = 'block';
-        console.warn('Uwaga: Obecna domena nie jest autoryzowana w Firebase. Logowanie przez Facebook może nie działać.');
-      }
-    }
-
-    // Check auth state
-    onAuthStateChanged(auth, (user) => {
-      if (user) {
-        // User is signed in
-        authButtons.style.display = 'none';
-        userMenu.style.display = 'flex';
-        accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${user.displayName || user.email}`;
-        userDashboard.style.display = 'block';
-        loadUserOffers(user.email);
-        
-        // Automatycznie zamknij modale po zalogowaniu
-        closeModal(loginModal);
-        closeModal(registerModal);
-      } else {
-        // User is signed out
-        authButtons.style.display = 'flex';
-        userMenu.style.display = 'none';
-        userDashboard.style.display = 'none';
-      }
-    });
-
-    // Open modals
-    loginBtn.addEventListener('click', () => openModal(loginModal));
-    registerBtn.addEventListener('click', () => {
-      openModal(registerModal);
-      checkAuthorizedDomain(); // Sprawdź domenę przy rejestracji
-    });
-    switchToRegister.addEventListener('click', (e) => {
-      e.preventDefault();
-      closeModal(loginModal);
-      openModal(registerModal);
-      checkAuthorizedDomain(); // Sprawdź domenę przy rejestracji
-    });
-    switchToLogin.addEventListener('click', (e) => {
-      e.preventDefault();
-      closeModal(registerModal);
-      openModal(loginModal);
-    });
-
-    // Close modals
-    closeModalButtons.forEach(button => {
-      button.addEventListener('click', () => {
-        const modal = button.closest('.modal');
-        closeModal(modal);
-      });
-    });
-
-    // Close modal when clicking outside
-    window.addEventListener('click', (e) => {
-      if (e.target.classList.contains('modal')) {
-        closeModal(e.target);
-      }
-    });
-
-    // Login form
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-        console.log('User logged in successfully');
-      } catch (error) {
-        alert('Błąd logowania: ' + error.message);
-      }
-    });
-
-    // Register form
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('registerName').value;
-      const email = document.getElementById('registerEmail').value;
-      const password = document.getElementById('registerPassword').value;
-      const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-      if (password !== confirmPassword) {
-        alert('Hasła nie są identyczne!');
-        return;
-      }
-
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        const user = userCredential.user;
-        
-        // Update profile with name
-        await updateProfile(user, { displayName: name });
-        
-        // Create user profile in Firestore
-        await setDoc(doc(db, "users", user.uid), {
-          name: name,
-          email: email,
-          createdAt: new Date()
-        });
-        
-        console.log('User registered successfully');
-      } catch (error) {
-        alert('Błąd rejestracji: ' + error.message);
-      }
-    });
-
-    // Google login
-    googleLoginBtn.addEventListener('click', async () => {
-      try {
-        const result = await signInWithPopup(auth, googleProvider);
-        const user = result.user;
-        
-        // Check if user exists in Firestore, if not create a record
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (!userDoc.exists()) {
-          await setDoc(doc(db, "users", user.uid), {
-            name: user.displayName,
-            email: user.email,
-            createdAt: new Date(),
-            provider: "google"
-          });
-        }
-        
-        console.log('Zalogowano przez Google:', user);
-      } catch (error) {
-        console.error("Błąd logowania przez Google:", error);
-        alert('Błąd logowania przez Google: ' + error.message);
-      }
-    });
-
-    
-
-    // Logout
-    logoutBtn.addEventListener('click', () => {
-      signOut(auth);
-    });
-
-    // Account button
-    accountBtn.addEventListener('click', () => {
-      userDashboard.scrollIntoView({ behavior: 'smooth' });
-    });
-
-    // Modal functions
-    function openModal(modal) {
-      modal.style.display = 'flex';
-    }
-
-    function closeModal(modal) {
-      modal.style.display = 'none';
-      // Reset form fields when closing modal
-      if (modal === loginModal) {
-        loginForm.reset();
-      } else if (modal === registerModal) {
-        registerForm.reset();
-      }
-    }
-
-    // Load user offers
-    async function loadUserOffers(email) {
-      try {
-        const q = query(collection(db, "propertyListings"), where("email", "==", email));
-        const querySnapshot = await getDocs(q);
-        
-        userOffers.innerHTML = '';
-        
-        if (querySnapshot.empty) {
-          userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>';
-          return;
-        }
-        
-        querySnapshot.forEach((doc) => {
-          const offer = doc.data();
-          const offerElement = document.createElement('div');
-          offerElement.classList.add('offer-card');
-          offerElement.innerHTML = `
-            <h3 class="offer-title">${offer.city || 'Brak tytułu'}</h3>
-            <div class="offer-details">
-              <p><strong>Lokalizacja:</strong> ${offer.city || 'Nie podano'}</p>
-              <p><strong>Cena całkowita:</strong> ${plot.price || 'Nie podano'} zł <span style="color: #888; font-size: 0.85em; margin-left: 5px;">${pricePerM2} zł/m²</span></p>
-              <p><strong>Powierzchnia:</strong> ${
-                offer.plots && offer.plots.length > 0 
-                  ? offer.plots.reduce((sum, p) => sum + (p.pow_dzialki_m2__c || 0), 0).toLocaleString('pl-PL') 
-                  : 'Nie podano'
-              } m²</p>
-            </div>
-            <div class="offer-actions">
-              <button class="btn btn-primary btn-sm">Edytuj</button>
-              <button class="btn btn-secondary btn-sm">Usuń</button>
-            </div>
-          `;
-          userOffers.appendChild(offerElement);
-        });
-      } catch (error) {
-        console.error("Error loading offers: ", error);
-        userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
-      }
-    }
-
-
-    
-    // FAQ accordion
-    const faqItems = document.querySelectorAll('.faq-item');
-    
-    faqItems.forEach(item => {
-      const question = item.querySelector('.faq-question');
-      
-      question.addEventListener('click', () => {
-        item.classList.toggle('active');
-      });
-    });
-    
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-      anchor.addEventListener('click', function(e) {
-        e.preventDefault();
-        
-        const targetId = this.getAttribute('href');
-        if (targetId === '#') return;
-        
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-          window.scrollTo({
-            top: targetElement.offsetTop - 80,
-            behavior: 'smooth'
-          });
-          
-          // Close mobile menu if open
-          if (navMenu.classList.contains('active')) {
-            navMenu.classList.remove('active');
-            mobileMenuBtn.innerHTML = '<i class="fas fa-bars"></i>';
-          }
-        }
-      });
-    });
-	
-	
-  </script>
-  
-  
-  <!-- Firebase (compat – najprościej w czystym HTML) -->
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-
+ 
 <script type="module">
-  // ===== Imports (modular SDK) =====
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import {
-    getAuth,
-    GoogleAuthProvider,
-    FacebookAuthProvider,
-    signInWithPopup,
-    signInWithRedirect,
-    onAuthStateChanged,
-    setPersistence,
-    browserLocalPersistence,
-    browserSessionPersistence,
-    inMemoryPersistence,
-    signInWithEmailAndPassword,
-    createUserWithEmailAndPassword,
-    updateProfile
+    getAuth, onAuthStateChanged,
+    signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
+    GoogleAuthProvider, signInWithPopup, signInWithRedirect,
+    setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
   import {
-    getFirestore,
-    doc,
-    setDoc,
-    getDoc
+    getFirestore, collection, query, where, getDocs, doc, setDoc
   } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
-  import {
-    getAnalytics,
-    isSupported as analyticsIsSupported
-  } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-analytics.js";
 
-  // ===== Twoja konfiguracja =====
+  // --- Konfiguracja (ta sama) ---
   const firebaseConfig = {
     apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
     authDomain: "base-468e0.firebaseapp.com",
@@ -2026,191 +1687,226 @@ window.addEventListener('resize', () => {
     appId: "1:829161895559:web:d832541aac05b35847ea22"
   };
 
-  // ===== Init =====
-  const app = initializeApp(firebaseConfig);
+  // --- Init ---
+  const app  = initializeApp(firebaseConfig);
   const auth = getAuth(app);
-  const db = getFirestore(app);
-
-  // Analytics (opcjonalne; nie blokuj działania, jeśli brak measurementId)
-  try { if (await analyticsIsSupported()) getAnalytics(app); } catch (_) {}
-
-  // Język komunikatów Firebase
+  const db   = getFirestore(app);
   auth.languageCode = 'pl';
 
-  // ===== Providers =====
+  // 0) Ostrzeżenie o uruchamianiu z file://
+  // if (location.protocol === 'file:') {
+  //   alert('Uruchom stronę przez http/https (np. http://localhost), nie z pliku (file://). Inaczej logowanie nie zadziała.');
+ //  }
+
+  // 1) Persystencja (fallback kaskadowy)
+  async function useBestPersistence() {
+    try { await setPersistence(auth, browserLocalPersistence); }
+    catch { try { await setPersistence(auth, browserSessionPersistence); }
+    catch { await setPersistence(auth, inMemoryPersistence); } }
+  }
+  await useBestPersistence();
+
+  // 2) Szybka podpowiedź o domenie (UI tylko informacyjne)
+  (function domainHint(){
+    const hint = document.getElementById('domainWarning');
+    if (!hint) return;
+    const knownGood = ['localhost','127.0.0.1','trainingtwenty5.github.io'];
+    if (!knownGood.includes(location.hostname)) {
+      hint.style.display = 'block';
+      // Pamiętaj też dodać tę domenę w Firebase → Authorized domains
+    }
+  })();
+
+  // 3) Provider Google
   const googleProvider = new GoogleAuthProvider();
   googleProvider.setCustomParameters({ prompt: 'select_account' });
-  const facebookProvider = new FacebookAuthProvider(); // jeśli będziesz używać
 
-  // ===== DOM =====
-  const authButtons       = document.getElementById('authButtons');
-  const userMenu          = document.getElementById('userMenu');
-  const loginBtn          = document.getElementById('loginBtn');
-  const registerBtn       = document.getElementById('registerBtn');
-  const accountBtn        = document.getElementById('accountBtn');
-  const logoutBtn         = document.getElementById('logoutBtn');
-  const loginModal        = document.getElementById('loginModal');
-  const registerModal     = document.getElementById('registerModal');
-  const closeModalButtons = document.querySelectorAll('.modal-close');
-  const switchToRegister  = document.getElementById('switchToRegister');
-  const switchToLogin     = document.getElementById('switchToLogin');
-  const loginForm         = document.getElementById('loginForm');
-  const registerForm      = document.getElementById('registerForm');
-  const userDashboard     = document.getElementById('userDashboard');
-  const userOffers        = document.getElementById('userOffers');
-  const heroAddOffer      = document.getElementById('heroAddOffer');
-  const dashboardAddOffer = document.getElementById('dashboardAddOffer');
-  const googleLoginBtn    = document.getElementById('googleLoginBtn');        // (rejestracja)
-  const googleLoginBtn2   = document.getElementById('googleLoginBtnLogin');   // (logowanie)
-  const facebookLoginBtn  = document.getElementById('facebookLoginBtn');
-  const domainWarning     = document.getElementById('domainWarning');
+  // 4) DOM
+  const authButtons   = document.getElementById('authButtons');
+  const userMenu      = document.getElementById('userMenu');
+  const loginBtn      = document.getElementById('loginBtn');
+  const registerBtn   = document.getElementById('registerBtn');
+  const accountBtn    = document.getElementById('accountBtn');
+  const logoutBtn     = document.getElementById('logoutBtn');
+  const loginModal    = document.getElementById('loginModal');
+  const registerModal = document.getElementById('registerModal');
+  const closeBtns     = document.querySelectorAll('.modal-close');
+  const switchToReg   = document.getElementById('switchToRegister');
+  const switchToLog   = document.getElementById('switchToLogin');
+  const loginForm     = document.getElementById('loginForm');
+  const registerForm  = document.getElementById('registerForm');
+  const userDashboard = document.getElementById('userDashboard');
+  const userOffers    = document.getElementById('userOffers');
+  const gBtn1         = document.getElementById('googleLoginBtn');
+  const gBtn2         = document.getElementById('googleLoginBtnLogin');
 
-  // ===== Helpers (bezpieczne fallbacki) =====
-  function openModal(m){ if (m) m.style.display = 'flex'; }
-  function closeModal(m){ if (m) m.style.display = 'none'; }
+  const openModal  = (m) => m && (m.style.display = 'flex');
+  const closeModal = (m) => m && (m.style.display = 'none');
 
-  function checkAuthorizedDomain() {
-    const currentDomain = window.location.hostname;
-    const authorizedDomains = [
-      'trainingtwenty5.github.io',
-      'localhost',
-      '127.0.0.1'
-    ];
-    if (!authorizedDomains.includes(currentDomain)) {
-      if (domainWarning) domainWarning.style.display = 'block';
-      console.warn('Uwaga: ta domena nie jest dodana w Firebase Auth → Authorized domains.');
-    }
-  }
-
-  // Persystencja: LOCAL → SESSION → MEMORY
-  async function setBestPersistence() {
-    try {
-      await setPersistence(auth, browserLocalPersistence);
-      return 'LOCAL';
-    } catch {
-      try {
-        await setPersistence(auth, browserSessionPersistence);
-        return 'SESSION';
-      } catch {
-        await setPersistence(auth, inMemoryPersistence);
-        return 'MEMORY';
-      }
-    }
-  }
-  const persistenceUsed = await setBestPersistence();
-  console.log('[Auth] persistence:', persistenceUsed);
-
-  // ===== Auth state =====
+  // 5) Auth state
   onAuthStateChanged(auth, (user) => {
     if (user) {
-      if (authButtons) authButtons.style.display = 'none';
-      if (userMenu) userMenu.style.display = 'flex';
+      authButtons && (authButtons.style.display = 'none');
+      userMenu    && (userMenu.style.display = 'flex');
       if (accountBtn) {
         const label = user.displayName ? user.displayName.split(' ')[0] : (user.email || 'Moje konto');
         accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${label}`;
       }
-      if (userDashboard) userDashboard.style.display = 'block';
-      if (typeof loadUserOffers === 'function') {
-        try { loadUserOffers(user.email); } catch {}
-      }
+      userDashboard && (userDashboard.style.display = 'block');
+      user?.email && loadUserOffers(user.email);
       closeModal(loginModal); closeModal(registerModal);
     } else {
-      if (authButtons) authButtons.style.display = 'flex';
-      if (userMenu)   userMenu.style.display   = 'none';
-      if (userDashboard) userDashboard.style.display = 'none';
+      authButtons && (authButtons.style.display = 'flex');
+      userMenu    && (userMenu.style.display = 'none');
+      userDashboard && (userDashboard.style.display = 'none');
+      userOffers && (userOffers.innerHTML = '');
     }
   });
 
-  // ===== Modale =====
-  if (loginBtn)     loginBtn.addEventListener('click', () => openModal(loginModal));
-  if (registerBtn)  registerBtn.addEventListener('click', () => { openModal(registerModal); checkAuthorizedDomain(); });
-  if (switchToRegister) switchToRegister.addEventListener('click', (e) => { e.preventDefault(); closeModal(loginModal); openModal(registerModal); checkAuthorizedDomain(); });
-  if (switchToLogin)    switchToLogin.addEventListener('click', (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
-  if (closeModalButtons && closeModalButtons.length) {
-    closeModalButtons.forEach(btn => btn.addEventListener('click', () => closeModal(btn.closest('.modal'))));
-  }
+  // 6) UI zdarzenia
+  loginBtn     && loginBtn.addEventListener('click', () => openModal(loginModal));
+  registerBtn  && registerBtn.addEventListener('click', () => openModal(registerModal));
+  switchToReg  && switchToReg.addEventListener('click', (e) => { e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
+  switchToLog  && switchToLog.addEventListener('click', (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
+  closeBtns?.forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
   window.addEventListener('click', (e) => { if (e.target.classList?.contains('modal')) closeModal(e.target); });
+  accountBtn && accountBtn.addEventListener('click', () => document.getElementById('userDashboard')?.scrollIntoView({behavior:'smooth'}));
 
-  // ===== E-mail/hasło =====
-  if (loginForm) {
-    loginForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('loginEmail').value.trim();
-      const password = document.getElementById('loginPassword').value;
-      try {
-        await signInWithEmailAndPassword(auth, email, password);
-      } catch (error) {
-        alert('Błąd logowania: ' + (error?.message || 'nieznany'));
-      }
-    });
-  }
-
-  if (registerForm) {
-    registerForm.addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const name = document.getElementById('registerName').value.trim();
-      const email = document.getElementById('registerEmail').value.trim();
-      const password = document.getElementById('registerPassword').value;
-      const confirmPassword = document.getElementById('registerConfirmPassword').value;
-
-      if (password !== confirmPassword) {
-        alert('Hasła nie są identyczne!');
-        return;
-      }
-      try {
-        const { user } = await createUserWithEmailAndPassword(auth, email, password);
-        if (name) await updateProfile(user, { displayName: name });
-        // utwórz dokument użytkownika (jeśli nie istnieje)
-        await setDoc(doc(db, "users", user.uid), {
-          name: name || null,
-          email,
-          createdAt: new Date(),
-          provider: "password"
-        }, { merge: true });
-      } catch (error) {
-        alert('Błąd rejestracji: ' + (error?.message || 'nieznany'));
-      }
-    });
-  }
-
-  // ===== Google login (oba przyciski) =====
-  async function signInWithGoogleSmart() {
-    // protokół musi być http/https na web
-    const okProtocol = ['http:', 'https:'].includes(location.protocol);
-    if (!okProtocol) {
-      alert('Uruchom stronę przez http/https (np. GitHub Pages), nie z pliku (file://).');
-      return;
+  // 7) Mapowanie błędów → PL
+  const niceAuthError = (err) => {
+    const code = err?.code || '';
+    switch (code) {
+      case 'auth/invalid-email':             return 'Nieprawidłowy adres e-mail.';
+      case 'auth/missing-password':          return 'Podaj hasło.';
+      case 'auth/invalid-credential':        return 'Nieprawidłowy e-mail lub hasło.';
+      case 'auth/user-not-found':            return 'Użytkownik nie istnieje.';
+      case 'auth/wrong-password':            return 'Błędne hasło.';
+      case 'auth/too-many-requests':         return 'Za dużo prób. Spróbuj później.';
+      case 'auth/unauthorized-domain':       return `Domena ${location.hostname} nie jest autoryzowana w Firebase (Authentication → Authorized domains).`;
+      case 'auth/popup-blocked':             return 'Przeglądarka zablokowała okno logowania Google. Użyj przekierowania.';
+      case 'auth/operation-not-supported-in-this-environment':
+                                             return 'To środowisko nie wspiera popup (np. file://). Uruchom przez http/https.';
+      default: return `Błąd: ${code || (err?.message || 'nieznany')}`;
     }
-    // iOS/Safari – częściej redirect, popup bywa blokowany
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+  };
+
+  // 8) Email / hasło
+  loginForm && loginForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const email = document.getElementById('loginEmail').value.trim();
+    const pass  = document.getElementById('loginPassword').value;
     try {
-      if (isIOS) {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        await signInWithPopup(auth, googleProvider);
-        closeModal(loginModal); closeModal(registerModal);
-      }
+      await signInWithEmailAndPassword(auth, email, pass);
     } catch (err) {
-      console.error('Google sign-in error:', err);
-      if (err?.code === 'auth/popup-blocked' ||
-          err?.code === 'auth/operation-not-supported-in-this-environment') {
-        await signInWithRedirect(auth, googleProvider);
-      } else {
-        alert('Błąd logowania przez Google: ' + (err?.message || 'nieznany'));
-      }
+      console.error('[login]', err);
+      alert(niceAuthError(err));
     }
-  }
-
-  [googleLoginBtn, googleLoginBtn2].forEach(btn => {
-    if (btn) btn.addEventListener('click', (e) => { e.preventDefault(); signInWithGoogleSmart(); });
   });
 
-  // ===== Wylogowanie =====
-  if (logoutBtn) logoutBtn.addEventListener('click', async () => { try { await auth.signOut(); } catch(e){} });
+  registerForm && registerForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const name = document.getElementById('registerName').value.trim();
+    const email = document.getElementById('registerEmail').value.trim();
+    const pass1 = document.getElementById('registerPassword').value;
+    const pass2 = document.getElementById('registerConfirmPassword').value;
+    if (pass1 !== pass2) return alert('Hasła nie są identyczne!');
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, pass1);
+      if (name) await updateProfile(user, { displayName: name });
+      await setDoc(doc(db, "users", user.uid), { name: name || null, email, createdAt: new Date(), provider: "password" }, { merge: true });
+    } catch (err) {
+      console.error('[register]', err);
+      alert(niceAuthError(err));
+    }
+  });
 
-  // ===== Dodatkowo: pokaż ostrzeżenie, jeśli domena nie jest dodana =====
-  checkAuthorizedDomain();
+  // 9) Google
+  async function signInWithGoogleSmart() {
+    const ok = ['http:', 'https:'].includes(location.protocol);
+    if (!ok) return alert('Uruchom stronę przez http/https (nie file://).');
+    try {
+      await signInWithPopup(auth, googleProvider);
+      closeModal(loginModal); closeModal(registerModal);
+    } catch (err) {
+      console.error('[google]', err);
+      if (err?.code === 'auth/popup-blocked' || err?.code === 'auth/operation-not-supported-in-this-environment') {
+        await signInWithRedirect(auth, googleProvider);
+      } else {
+        alert(niceAuthError(err));
+      }
+    }
+  }
+  [gBtn1, gBtn2].forEach(b => b && b.addEventListener('click', (e) => { e.preventDefault(); signInWithGoogleSmart(); }));
+
+  // 10) Wylogowanie
+  logoutBtn && logoutBtn.addEventListener('click', async () => { try { await auth.signOut(); } catch(e){} });
+
+  // 11) Oferty (po e-mailu)
+  async function loadUserOffers(email) {
+    try {
+      if (!userOffers) return;
+      userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
+      const q = query(collection(db, "propertyListings"), where("email", "==", email));
+      const snap = await getDocs(q);
+      userOffers.innerHTML = '';
+      if (snap.empty) { userOffers.innerHTML = '<p>Nie masz jeszcze żadnych ofert.</p>'; return; }
+
+      snap.forEach((docu) => {
+        const offer = docu.data();
+        if (Array.isArray(offer.plots) && offer.plots.length) {
+          offer.plots
+            .map((plot, originalIndex) => ({ plot, originalIndex }))
+            .filter(({ plot }) => plot.mock !== false)
+            .forEach(({ plot, originalIndex }, i) => {
+              const city = offer.city || offer.location?.city || 'Nie podano';
+              const area = Number(plot.pow_dzialki_m2_uldk ?? plot.area ?? plot.areaM2 ?? 0);
+              const price = Number(plot.price ?? 0);
+              const ppm2  = price && area ? price / area : 0;
+              const el = document.createElement('div');
+              el.className = 'offer-card';
+              el.innerHTML = `
+                <h3 class="offer-title">${plot.Id || `Działka ${i+1}`}</h3>
+                <div class="offer-details">
+                  <p><strong>Lokalizacja:</strong> ${city}</p>
+                  <p><strong>Cena całkowita:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
+                    ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${Math.round(ppm2).toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
+                  <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
+                </div>
+                <div class="offer-actions">
+                  <button class="btn btn-primary btn-sm" onclick="window.location.href='dodaj.html?edit=${docu.id}&plot=${originalIndex}'">
+                    <i class="fas fa-edit"></i> Edytuj
+                  </button>
+                  <button class="btn btn-secondary btn-sm" onclick="alert('Usuń/edytuj w dodaj.html (docId + index)');">
+                    <i class="fas fa-trash"></i> Usuń
+                  </button>
+                </div>`;
+              userOffers.appendChild(el);
+            });
+        } else {
+          const city  = offer.city || offer.location?.city || offer.miejscowosc || offer.miasto || 'Nie podano';
+          const price = Number(offer.price || offer.cena || offer.totalPrice || 0);
+          const area  = Number(offer.areaM2 || offer.powierzchnia || offer.pow_dzialki_m2__c || 0);
+          const ppm2  = price && area ? Math.round(price / area) : 0;
+          const el = document.createElement('div');
+          el.className = 'offer-card';
+          el.innerHTML = `
+            <h3 class="offer-title">${city}</h3>
+            <div class="offer-details">
+              <p><strong>Lokalizacja:</strong> ${city}</p>
+              <p><strong>Cena:</strong> ${price ? price.toLocaleString('pl-PL') : 'Nie podano'} zł
+                ${price && area ? `<span style="color:#888;font-size:.85em;margin-left:5px;">${ppm2.toLocaleString('pl-PL')} zł/m²</span>` : ''}</p>
+              <p><strong>Powierzchnia:</strong> ${area ? area.toLocaleString('pl-PL') : 'Nie podano'} m²</p>
+            </div>`;
+          userOffers.appendChild(el);
+        }
+      });
+    } catch (err) {
+      console.error('Error loading offers:', err);
+      userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
+    }
+  }
 </script>
+
 
 
 </body>
