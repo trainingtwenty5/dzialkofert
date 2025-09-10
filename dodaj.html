@@ -4,12 +4,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dodaj Ogłoszenie z Działek</title>
+	
+    <!-- Favicon dla przeglądarek -->
+    <link rel="icon" type="image/png" sizes="32x32" href="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png">
+
+	
     
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <!-- Leaflet CSS -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
     
     <!-- Firebase SDK -->
     <script type="module">
@@ -228,9 +230,13 @@
             height: 16px;
             box-shadow: 0 0 10px rgba(0,0,0,0.3);
         }
+        
+        .gm-style .gm-style-iw {
+            padding: 10px;
+        }
     </style>
 </head>
-<body>
+<body onload="loadGoogleMaps()">
     <div class="toast-container"></div>
     
     <div class="container pt-4 pb-4">
@@ -239,7 +245,7 @@
                 <h1 class="text-center mb-3">Dodaj Ogłoszenie z Działek</h1>
                 <p class="lead text-center mb-4">Kliknij na mapę, aby wskazać lokalizację działki</p>
                 
-             <div class="card shadow-sm">
+                <div class="card shadow-sm">
                     <div class="card-header bg-success text-white">
                         <h5 class="mb-0">Wskazane Lokalizacje</h5>
                     </div>
@@ -289,6 +295,11 @@
                             </div>
                             <div class="card-body">
                                 <form id="propertyForm">
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">Miejscowość</label>
+                                        <input type="text" class="form-control" id="city" placeholder="Miejscowość, gdzie znajduje się działka">
+                                    </div>
+                                    
                                     <div class="mb-3">
                                         <label for="firstName" class="form-label">Imię *</label>
                                         <input type="text" class="form-control" id="firstName" required placeholder="Podaj swoje imię">
@@ -344,8 +355,6 @@
                         </div>
                     </div>
                 </div>
-                
-   
             </div>
         </div>
     </div>
@@ -353,54 +362,56 @@
     <!-- Bootstrap & jQuery -->
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
     
     <script>
+        // Funkcja do ładowania Google Maps API
+        function loadGoogleMaps() {
+            const apiKey = localStorage.getItem('googleMapsApiKey') || 'AIzaSyCr5TmFxnT3enxmyr6vujF8leP995giw8I';
+            const script = document.createElement("script");
+            script.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&callback=initMap`;
+            script.async = true;
+            script.defer = true;
+            document.head.appendChild(script);
+        }
+
         // Zmienne globalne
-        let map, wmsLayer = null;
+        let map, geocoder;
         let selectedPoints = [];
         let pointMarkers = [];
         let currentHighlighted = null;
         
-        // Inicjalizacja mapy
+        // Inicjalizacja mapy Google
         function initMap() {
             // Inicjalizacja mapy z centrum na Polsce
-            map = L.map('map').setView([52.0, 19.0], 7);
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: { lat: 52.0, lng: 19.0 },
+                zoom: 7,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
+            });
             
-            // Dodanie warstwy OpenStreetMap jako podkładu
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            }).addTo(map);
-            
-            // Dodanie warstwy WMS z GUGiK
-            wmsLayer = L.tileLayer.wms('https://integracja.gugik.gov.pl/cgi-bin/KrajowaIntegracjaEwidencjiGruntow', {
-                layers: 'dzialki',
-                format: 'image/png',
-                transparent: true,
-                attribution: "GUGiK WMS"
-            }).addTo(map);
+            // Inicjalizacja geokodera
+            geocoder = new google.maps.Geocoder();
             
             // Obsługa kliknięcia na mapie
-            map.on('click', function(e) {
+            map.addListener('click', function(e) {
                 // Dodaj punkt na mapie
-                addPointToSelection(e.latlng);
+                addPointToSelection(e.latLng);
             });
             
             // Ukryj loading, pokaż mapę
             document.getElementById('mapLoading').style.display = 'none';
             document.getElementById('mapError').style.display = 'none';
             document.getElementById('map').style.display = 'block';
-			
             
             showToast("Mapa załadowana pomyślnie. Kliknij na mapie, aby dodać punkt.", "success");
         }
         
         // Dodawanie punktu do listy wybranych
-        function addPointToSelection(latlng) {
+        function addPointToSelection(latLng) {
             // Sprawdź, czy punkt już istnieje na liście (z tolerancją 0.0001 stopnia)
             const existingIndex = selectedPoints.findIndex(point => 
-                Math.abs(point.lat - latlng.lat) < 0.0001 && 
-                Math.abs(point.lng - latlng.lng) < 0.0001
+                Math.abs(point.lat - latLng.lat()) < 0.0001 && 
+                Math.abs(point.lng - latLng.lng()) < 0.0001
             );
             
             if (existingIndex === -1) {
@@ -410,35 +421,50 @@
                 // Dodaj nowy punkt
                 const pointData = {
                     id: pointId,
-                    lat: latlng.lat,
-                    lng: latlng.lng,
+                    lat: latLng.lat(),
+                    lng: latLng.lng(),
                     timestamp: new Date().toISOString()
                 };
                 
                 selectedPoints.push(pointData);
                 
                 // Dodaj znacznik na mapę
-                const marker = L.marker(latlng, {
-                    icon: L.divIcon({
-                        className: 'point-marker',
-                        iconSize: [16, 16]
-                    })
-                }).addTo(map);
-                
-                marker.bindPopup(`<b>Punkt lokalizacji</b><br>Współrzędne: ${latlng.lat.toFixed(6)}, ${latlng.lng.toFixed(6)}`);
+                const marker = new google.maps.Marker({
+                    position: latLng,
+                    map: map,
+                    icon: {
+                        path: google.maps.SymbolPath.CIRCLE,
+                        fillColor: '#1e6fba',
+                        fillOpacity: 1,
+                        strokeColor: '#ffffff',
+                        strokeWeight: 2,
+                        scale: 8
+                    }
+                });
                 
                 // Dodajemy obsługę kliknięcia na znacznik
-                marker.on('click', function(e) {
-                    // Zapobiegaj propagacji zdarzenia do mapy
-                    L.DomEvent.stopPropagation(e);
-                    
+                marker.addListener('click', function() {
                     // Usuń ten punkt
                     removePoint(pointId);
                 });
                 
+                // Dodajemy info window do markera
+                const infoWindow = new google.maps.InfoWindow({
+                    content: `<b>Punkt lokalizacji</b><br>Współrzędne: ${latLng.lat().toFixed(6)}, ${latLng.lng().toFixed(6)}`
+                });
+                
+                marker.addListener('mouseover', function() {
+                    infoWindow.open(map, marker);
+                });
+                
+                marker.addListener('mouseout', function() {
+                    infoWindow.close();
+                });
+                
                 pointMarkers.push({
                     id: pointId,
-                    marker: marker
+                    marker: marker,
+                    infoWindow: infoWindow
                 });
                 
                 showToast(`Dodano punkt lokalizacji`, "success");
@@ -502,20 +528,34 @@
             // Znajdź znacznik odpowiadający punktowi
             const markerInfo = pointMarkers.find(marker => marker.id === pointId);
             if (markerInfo && highlight) {
-                // Zmień wygląd znacznika (można dodać klasę CSS)
-                markerInfo.marker._icon.style.boxShadow = '0 0 0 3px #ff6b35';
+                // Zmień wygląd znacznika
+                markerInfo.marker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#ff6b35',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2,
+                    scale: 8
+                });
                 
                 // Otwórz popup
-                markerInfo.marker.openPopup();
+                markerInfo.infoWindow.open(map, markerInfo.marker);
                 
                 // Podświetl również element listy
                 $(`.plot-item[data-point-id="${pointId}"]`).addClass('highlighted');
             } else if (markerInfo) {
                 // Przywróć domyślny wygląd znacznika
-                markerInfo.marker._icon.style.boxShadow = '0 0 10px rgba(0,0,0,0.3)';
+                markerInfo.marker.setIcon({
+                    path: google.maps.SymbolPath.CIRCLE,
+                    fillColor: '#1e6fba',
+                    fillOpacity: 1,
+                    strokeColor: '#ffffff',
+                    strokeWeight: 2,
+                    scale: 8
+                });
                 
                 // Zamknij popup
-                markerInfo.marker.closePopup();
+                markerInfo.infoWindow.close();
                 
                 $(`.plot-item[data-point-id="${pointId}"]`).removeClass('highlighted');
             }
@@ -531,7 +571,7 @@
                 // Usuń znacznik z mapy
                 const markerIndex = pointMarkers.findIndex(marker => marker.id === pointId);
                 if (markerIndex !== -1) {
-                    map.removeLayer(pointMarkers[markerIndex].marker);
+                    pointMarkers[markerIndex].marker.setMap(null);
                     pointMarkers.splice(markerIndex, 1);
                 }
                 
@@ -559,30 +599,28 @@
             
             try {
                 // Przygotuj dane do zapisania
-					const formData = {
-						city: "",  // na razie puste, dodasz później
-						description: "", // też puste
-						firstName: document.getElementById("firstName").value,
-						phone: document.getElementById("phone").value,
-						email: document.getElementById("email").value,
-						price: document.getElementById("price").value,
-						plots: selectedPoints.map(point => ({
-							Id: "",
-							idDzialki_uldk: "",
-							lat: point.lat,
-							lng: point.lng,
-							mock: true,
-							geometry_uldk: null,
-							pow_dzialki_m2_uldk: null,
-							price: document.getElementById("price").value || "",
-							termsConsent: document.getElementById("termsConsent").checked,
-							timestamp: new Date()
-						})),
-						termsConsent: document.getElementById("termsConsent").checked,
-						marketingConsent: document.getElementById("marketingConsent").checked,
-						timestamp: new Date()
-					};
-
+                const formData = {
+                    city: document.getElementById("city").value,
+                    firstName: document.getElementById("firstName").value,
+                    phone: document.getElementById("phone").value,
+                    email: document.getElementById("email").value,
+                    price: document.getElementById("price").value,
+                    plots: selectedPoints.map(point => ({
+                        Id: "",
+                        idDzialki_uldk: "",
+                        lat: point.lat,
+                        lng: point.lng,
+                        mock: true,
+                        geometry_uldk: null,
+                        pow_dzialki_m2_uldk: null,
+                        price: document.getElementById("price").value || "",
+                        termsConsent: document.getElementById("termsConsent").checked,
+                        timestamp: new Date()
+                    })),
+                    termsConsent: document.getElementById("termsConsent").checked,
+                    marketingConsent: document.getElementById("marketingConsent").checked,
+                    timestamp: new Date()
+                };
                 
                 // Zapisz dane w Firebase Firestore
                 const docRef = await window.addDoc(window.collection(window.db, "propertyListings"), formData);
@@ -618,7 +656,7 @@
         function clearPoints() {
             // Usuń wszystkie znaczniki z mapy
             pointMarkers.forEach(markerInfo => {
-                map.removeLayer(markerInfo.marker);
+                markerInfo.marker.setMap(null);
             });
             
             // Wyczyść tablice
@@ -653,9 +691,6 @@
         
         // Inicjalizacja po załadowaniu DOM
         $(document).ready(function() {
-            // Inicjalizacja mapy
-            initMap();
-            
             // Obsługa przycisku czyszczenia listy
             $('#clearPlotsBtn').click(function() {
                 if (selectedPoints.length > 0) {
