@@ -414,28 +414,39 @@ function initMap() {
     zoom: 17,
     fullscreenControl: false,
     streetViewControl: !isMobile, // 🔹 Street View tylko na desktopie
-    styles: [
-      {
-        featureType: "all",
-        elementType: "labels",
-        stylers: [{ visibility: "off" }]
-      },
-      {
-        featureType: "administrative.locality",
-        elementType: "labels.text",
-        stylers: [{ visibility: "on" }]
-      },
-      {
-        featureType: "water",
-        elementType: "labels.text",
-        stylers: [{ visibility: "on" }]
-      },
-      {
-        featureType: "road",
-        elementType: "labels.text",
-        stylers: [{ visibility: "on" }]
-      }
-    ]
+      styles: [
+    {
+      featureType: "all",
+      elementType: "labels",
+      stylers: [{ visibility: "off" }]
+    },
+    {
+      featureType: "administrative.locality",
+      elementType: "labels.text",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "water",
+      elementType: "labels.text",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "road",
+      elementType: "labels.text",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "poi", // punkty POI (np. sklepy, szkoły)
+      elementType: "labels.text",
+      stylers: [{ visibility: "on" }]
+    },
+    {
+      featureType: "address", // 🔹 adresy (numery budynków)
+      elementType: "labels.text",
+      stylers: [{ visibility: "on" }]
+    }
+  ]
+};
   };
 
   if (document.getElementById('map')) {
