@@ -250,7 +250,10 @@
     <!-- Formularz -->
     <div class="form-container">
       <h1 class="text-center mb-3">Dodaj darmowe ogłoszenie</h1>
-      <p class="lead text-center mb-4">Kliknij na mapę, aby wskazać lokalizację działki</p>
+<p class="lead text-center mb-4 d-none d-lg-block">
+  Kliknij na mapę, aby wskazać lokalizację działki
+</p>
+
 
       <div id="selectedPlots">
         <p class="text-muted">Brak wskazanych działek.</p>
@@ -291,6 +294,7 @@
 <!-- Mobile -->
 <!-- Mobile -->
 <div class="map-container mb-3 d-lg-none" style="position: relative;">
+  <p class="lead text-center mb-2">Kliknij na mapę, aby wskazać lokalizację działki</p>
   <div id="map-mobile"></div>
   <div class="map-overlay map-overlay-mobile">
     <button id="clearPlotsBtnMobile" class="btn-overlay">🗑️</button>
