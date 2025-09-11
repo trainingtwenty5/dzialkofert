@@ -1614,39 +1614,65 @@ footer { padding: 2.5rem 0 1.25rem; }
     </div>
   </section>
 
-  <footer id="contact">
-    <div class="container">
-      <div class="footer-container">
-        <div class="footer-about">
-          <a style="color:inherit" href="index.html" class="footer-logo">
-            <img src="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png" alt="Działkofert" style="height:32px;">
-            <span>Działkofert</span>
-          </a>
-          <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
-        </div>
 
-        <div class="footer-links">
-          <h3>Przydatne linki</h3>
-          <ul>
-            <li><a href="#home">Strona główna</a></li>
-            <li><a href="#features">Dlaczego my</a></li>
-            <li><a href="#how-it-works">Jak to działa</a></li>
-            <li><a href="#faq">FAQ</a></li>
-          </ul>
-        </div>
 
-        <div class="footer-contact">
-          <h3>Kontakt</h3>
-          <p><i class="fas fa-envelope"></i> info@dzialkiekspres.pl</p>
-          <p><i class="fas fa-phone"></i> +48 123 456 789</p>
-        </div>
+<style>
+/* === FOOTER === */
+footer{background:var(--darker);color:#fff;padding:2.5rem 0 1.25rem;margin-top:120px}
+.footer-container{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:1.5rem
+}
+.footer-logo{display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.25rem;color:#fff}
+.footer-logo img{height:32px;filter:brightness(0) invert(1)}
+.footer-about p{opacity:.8;font-size:.9rem;line-height:1.6;margin-top:.5rem}
+.footer-links h3,.footer-contact h3{font-size:1.1rem;margin-bottom:1rem;position:relative;display:inline-block}
+.footer-links h3::after,.footer-contact h3::after{
+  content:'';position:absolute;left:0;bottom:-6px;width:25px;height:2px;background:var(--gradient-primary);border-radius:2px
+}
+.footer-links ul{list-style:none}
+.footer-links li{margin-bottom:.6rem}
+.footer-links a{color:#b6c7da;font-size:.9rem}
+.footer-links a:hover{color:#fff;padding-left:5px}
+.footer-contact p{opacity:.8;font-size:.9rem;display:flex;align-items:center;gap:.6rem;margin:.4rem 0}
+.footer-bottom{text-align:center;border-top:1px solid rgba(255,255,255,.12);padding-top:1.25rem;opacity:.75;font-size:.85rem}
+
+</style>
+<footer id="contact">
+  <div class="container">
+    <div class="footer-container">
+      <div class="footer-about">
+        <a href="index.html" class="footer-logo">
+          <img src="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png" alt="Działkofert">
+          <span>Działkofert</span>
+        </a>
+        <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
       </div>
 
-      <div class="footer-bottom">
-        <p>© 2025 Działkofert. Wszelkie prawa zastrzeżone.</p>
+      <div class="footer-links">
+        <h3>Przydatne linki</h3>
+        <ul>
+          <li><a href="index.html">Strona główna</a></li>
+          <li><a href="oferty.html">Oferty</a></li>
+          <li><a href="dodaj.html">Dodaj ofertę</a></li>
+          <li><a href="#contact">Kontakt</a></li>
+        </ul>
+      </div>
+
+      <div class="footer-contact">
+        <h3>Kontakt</h3>
+        <p><i class="fas fa-envelope"></i> info@dzialkofert.pl</p>
+        <p><i class="fas fa-phone"></i> +48 123 456 789</p>
       </div>
     </div>
-  </footer>
+
+    <div class="footer-bottom">
+      © 2025 Działkofert. Wszelkie prawa zastrzeżone.
+    </div>
+  </div>
+</footer>
+
+
+
 
   <!-- Firebase + logika aplikacji -->
   <script type="module">
