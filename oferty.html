@@ -2067,8 +2067,8 @@ window.deletePlot = async function(offerId, plotIndex, plotTitle) {
     await updateDoc(doc(db, "propertyListings", offerId), { plots: updated });
 
     // odśwież listę + toast sukcesu
-    const user = auth.currentUser;
-    if (user?.email) await loadUserOffers(user.email);
+	const user = auth.currentUser;
+	if (user) await loadUserOffers(user.email || null, user.uid || null);
 
     showToast(`Oferta „${plotTitle}” została usunięta.`, "success");
   } catch (err) {
@@ -2818,90 +2818,75 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
   logoutBtn && logoutBtn.addEventListener('click', async () => {
     try { await signOut(auth); } catch(_) {}
   });
+  
+  
+  
+  
+  
+  
+  
+  
 
   // --- „Miękkie usuwanie” i ładowanie ofert (jeśli używasz) ---
-  async function softDeletePlot(offerId, plotIndex, plotTitle, cardEl) {
-    try {
-      const ref  = doc(db, "propertyListings", offerId);
-      const snap = await getDoc(ref);
-      if (!snap.exists()) throw new Error("Dokument nie istnieje.");
-      const data = snap.data();
-      if (!Array.isArray(data.plots) || plotIndex >= data.plots.length) throw new Error("Błędny indeks działki.");
-
-      const updated = [...data.plots];
-      updated[plotIndex] = { ...updated[plotIndex], mock: false };
-      await updateDoc(ref, { plots: updated });
-
-      if (cardEl?.parentNode) cardEl.parentNode.removeChild(cardEl);
-      window.showToast?.(`Oferta „${plotTitle || 'Działka'}” została usunięta.`, 'success');
-
-      if (!document.getElementById('userOffers')?.querySelector('.offer-card')) {
-        const user = auth.currentUser;
-        if (user) loadUserOffers(user.email, user.uid);
-      }
-    } catch (err) {
-      console.error("softDeletePlot:", err);
-      window.showToast?.("Nie udało się usunąć oferty: " + (err.message || ''), 'error');
-    }
-  }
-
-  async function loadUserOffers(email, uid) {
+async function loadUserOffers(email, uid) {
   try {
-    const emailFields = ['email', 'ownerEmail', 'userEmail', 'createdByEmail', 'contactEmail'];
-    const idFields    = ['uid', 'userId', 'ownerId', 'createdBy'];
+    const emailFields = ['email', 'userEmail', 'ownerEmail', 'createdByEmail', 'contactEmail'];
+    const idFields    = ['userUid', 'uid', 'userId', 'ownerId', 'createdBy'];
 
     userOffers.innerHTML = '<p>Ładuję Twoje oferty…</p>';
 
-    let snap = null;
+    // Zbierz WSZYSTKIE pasujące dokumenty z wielu zapytań i zdeduplikuj po id
+    const results = new Map(); // id -> QueryDocumentSnapshot
 
-    // 1) spróbuj po emailu – po kolei po znanych polach
+    // — po e-mailu (uwzględnij różne wielkości liter)
     if (email) {
-      for (const f of emailFields) {
-        try {
-          const q1 = query(collection(db, "propertyListings"), where(f, "==", email));
-          const s1 = await getDocs(q1);
-          if (!s1.empty) { snap = s1; break; }
-        } catch (e) {
-          console.warn('Query by email failed for field', f, e);
+      const variants = [...new Set([email, email.toLowerCase()])];
+      for (const field of emailFields) {
+        for (const val of variants) {
+          try {
+            const s = await getDocs(query(collection(db, 'propertyListings'), where(field, '==', val)));
+            s.forEach(d => results.set(d.id, d));
+          } catch (e) {
+            console.warn('Email query failed for', field, e);
+          }
         }
       }
     }
 
-    // 2) jeżeli nic – spróbuj po uid (różne nazwy pól)
-    if (!snap && uid) {
-      for (const f of idFields) {
+    // — po UID
+    if (uid) {
+      for (const field of idFields) {
         try {
-          const q2 = query(collection(db, "propertyListings"), where(f, "==", uid));
-          const s2 = await getDocs(q2);
-          if (!s2.empty) { snap = s2; break; }
+          const s = await getDocs(query(collection(db, 'propertyListings'), where(field, '==', uid)));
+          s.forEach(d => results.set(d.id, d));
         } catch (e) {
-          console.warn('Query by uid failed for field', f, e);
+          console.warn('UID query failed for', field, e);
         }
       }
     }
 
     userOffers.innerHTML = '';
 
-    if (!snap || snap.empty) {
+    if (results.size === 0) {
       userOffers.innerHTML = `
-        <p>Nie masz jeszcze żadnych ofert.</p>
+        <p>Nie znaleziono Twoich ofert.</p>
         <p style="font-size:.9em;color:#666">
-          Upewnij się, że dokumenty w <code>propertyListings</code> mają jedno z pól:
-          <code>${['email','ownerEmail','userEmail','createdByEmail','contactEmail','uid','userId','ownerId','createdBy'].join(', ')}</code>
-          powiązane z Twoim kontem.
+          Sprawdź, czy dokumenty w <code>propertyListings</code> mają któreś z pól:
+          <code>${['email','userEmail','ownerEmail','createdByEmail','contactEmail','userUid','uid','userId','ownerId','createdBy'].join(', ')}</code>
+          z Twoim e-mailem (najlepiej małymi literami) lub UID.
         </p>`;
       return;
     }
 
-    // 3) render
-    snap.forEach((docu) => {
-      const offer = docu.data();
+    // Render (twój fragment bez zmian poza źródłem danych)
+    Array.from(results.values()).forEach((docu) => {
+      const offer  = docu.data();
       const offerId = docu.id;
       if (!Array.isArray(offer.plots) || offer.plots.length === 0) return;
 
       const activePlots = offer.plots
         .map((plot, originalIndex) => ({ plot, originalIndex }))
-        .filter(({ plot }) => plot?.mock !== false); // pokazuj tylko aktywne
+        .filter(({ plot }) => plot?.mock !== false);
 
       activePlots.forEach(({ plot, originalIndex }, i) => {
         const price = Number(plot.price || 0);
@@ -2944,10 +2929,11 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
       userOffers.innerHTML = '<p>Nie masz jeszcze żadnych aktywnych ofert.</p>';
     }
   } catch (error) {
-    console.error("Error loading offers: ", error);
+    console.error('Error loading offers: ', error);
     userOffers.innerHTML = '<p>Wystąpił błąd podczas ładowania ofert.</p>';
   }
 }
+
 
 
   // --- EXPORTY DLA ZWYKŁYCH SKRYPTÓW (jeśli używasz poza module) ---
@@ -2956,6 +2942,8 @@ function showConfirm({ title = 'Potwierdzenie', message = 'Czy na pewno chcesz k
   window.getDocs = getDocs;
   window.query = query;
   window.where = where;
+  window.doc       = doc;
+  window.updateDoc = updateDoc;
 </script>
 
 
