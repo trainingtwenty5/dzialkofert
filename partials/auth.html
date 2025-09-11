@@ -1,0 +1,70 @@
+
+<!-- Login Modal -->
+<div class="modal" id="loginModal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-labelledby="loginTitle">
+    <div class="modal-header">
+      <h3 id="loginTitle">Zaloguj się</h3>
+      <button class="modal-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Email</label>
+        <input type="email" id="loginEmail" required />
+      </div>
+      <div class="form-group">
+        <label for="loginPassword">Hasło</label>
+        <input type="password" id="loginPassword" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Zaloguj się</button>
+    </form>
+    <div class="social-login">
+      <button type="button" class="btn btn-primary btn-sm" id="googleLoginBtnLogin" style="width:100%;margin-top:.6rem;">
+        <i class="fab fa-google"></i> Kontynuuj z Google
+      </button>
+    </div>
+    <div class="form-footer">
+      <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
+    </div>
+  </div>
+</div>
+
+<!-- Register Modal -->
+<div class="modal" id="registerModal" aria-hidden="true">
+  <div class="modal-content" role="dialog" aria-labelledby="regTitle">
+    <div class="modal-header">
+      <h3 id="regTitle">Utwórz konto</h3>
+      <button class="modal-close" aria-label="Zamknij">&times;</button>
+    </div>
+    <form id="registerForm">
+      <div class="form-group">
+        <label for="registerName">Imię i nazwisko</label>
+        <input type="text" id="registerName" required />
+      </div>
+      <div class="form-group">
+        <label for="registerEmail">Email</label>
+        <input type="email" id="registerEmail" required />
+      </div>
+      <div class="form-group">
+        <label for="registerPassword">Hasło</label>
+        <input type="password" id="registerPassword" required />
+      </div>
+      <div class="form-group">
+        <label for="registerConfirmPassword">Potwierdź hasło</label>
+        <input type="password" id="registerConfirmPassword" required />
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;">Zarejestruj się</button>
+    </form>
+    <div class="social-login" style="margin-top:.75rem;">
+      <button type="button" class="btn btn-primary btn-sm" id="googleLoginBtn" style="width:100%;">
+        <i class="fab fa-google"></i> Kontynuuj z Google
+      </button>
+    </div>
+    <div class="domain-warning" id="domainWarning" style="display:none;margin-top:.6rem;">
+      <i class="fas fa-exclamation-triangle"></i>
+      Uwaga: jeśli uruchamiasz z nieautoryzowanej domeny – dodaj ją w Firebase → Authentication → Authorized domains.
+    </div>
+    <div class="form-footer">
+      <p>Masz już konto? <a href="#" id="switchToLogin">Zaloguj się</a></p>
+    </div>
+  </div>
+</div>

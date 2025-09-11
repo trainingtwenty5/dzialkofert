@@ -1,0 +1,53 @@
+<!-- TOP NAVBAR (desktop) -->
+<div class="top-navbar" role="navigation" aria-label="Pasek informacyjny">
+  <div class="wrap">
+    <div class="contact-info">
+      <span><i class="fas fa-clock"></i> Poniedziałek – Piątek 9:00–18:00</span>
+      <span><i class="fas fa-phone"></i> +48 505 849 404</span>
+    </div>
+    <div class="auth-buttons" id="authButtons">
+      <button class="btn btn-outline-primary btn-sm" id="loginBtn"><i class="fas fa-sign-in-alt"></i> Zaloguj się</button>
+      <button class="btn btn-primary btn-sm" id="registerBtn"><i class="fas fa-user-plus"></i> Zarejestruj się</button>
+    </div>
+    <div class="user-menu" id="userMenu" style="display:none">
+      <button class="btn btn-outline-primary btn-sm" id="accountBtn"><i class="fas fa-user"></i> Moje konto</button>
+      <button class="btn btn-primary btn-sm" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Wyloguj</button>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER (główna nawigacja) -->
+<header role="navigation" aria-label="Główna nawigacja">
+  <div class="header-inner">
+    <a href="index.html" class="logo">
+      <img src="https://storage.waw.cloud.ovh.net/v1/AUTH_024f82ed62da4186825a5b526cd1a61e/FishFounder/Dzialkofert_logo.png" alt="Działkofert">
+      <span>Działkofert</span>
+    </a>
+
+    <nav class="desktop-nav" aria-label="Menu (desktop)">
+      <a href="index.html" class="nav-link">Strona główna</a>
+      <a href="oferty.html" class="nav-link">Oferty</a>
+      <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+      <a href="#contact" class="nav-link">Kontakt</a>
+    </nav>
+
+    <a href="dodaj.html" class="desktop-add-offer"><i class="fas fa-plus"></i> Dodaj ofertę</a>
+
+    <a href="dodaj.html" class="mobile-add-offer"><i class="fas fa-plus"></i> Dodaj ofertę</a>
+    <button class="mobile-menu-btn" aria-label="Otwórz menu" aria-expanded="false">
+      <i class="fas fa-bars"></i>
+    </button>
+  </div>
+
+  <!-- Menu mobilne -->
+  <nav class="nav-menu" aria-label="Menu (mobile)">
+    <a href="index.html" class="nav-link">Strona główna</a>
+    <a href="oferty.html" class="nav-link">Oferty</a>
+    <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
+    <a href="#contact" class="nav-link">Kontakt</a>
+    <div class="mobile-auth" style="display:none">
+      <a href="#" id="loginLink" class="nav-link">Zaloguj się</a>
+      <a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>
+    </div>
+  </nav>
+</header>
