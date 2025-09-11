@@ -328,10 +328,18 @@
       }
     }
 	
-	.disabled-field {
-  opacity: .5;
-  pointer-events: none; /* brak interakcji */
+/* delikatne wyszarzenie, ale bez zabawy w pointer-events i bez globalnej opacity */
+.disabled-field .form-label { opacity: .6; }
+.disabled-field .form-control { background-color: #f8f9fa; }
+
+/* iOS/Safari – upewnij się, że tekst jest rysowany normalnie */
+input[readonly], input:disabled, 
+textarea[readonly], textarea:disabled {
+  -webkit-text-fill-color: #212529; /* kolor tekstu */
+  color: #212529;
+  opacity: 1; /* ważne – nie przyciemniaj samego inputa */
 }
+
   </style>
 </head>
 <body onload="loadGoogleMaps()">
@@ -890,7 +898,7 @@ function toggleFieldsForAuth(user) {
     // POZOSTAŁE wygaszamy (widoczne, ale nieaktywne)
     others.forEach(sel => {
       const $wrap = $(sel).closest('.mb-3');
-      $(sel).prop('required', false).prop('disabled', true);
+      $(sel).prop('required', false).prop('readonly', true);
       $wrap.removeClass('d-none').addClass('disabled-field');
     });
 
@@ -906,7 +914,7 @@ function toggleFieldsForAuth(user) {
     // Niezalogowany: wszystko normalnie widoczne i aktywne
     ['#firstName', '#phone', '#email', '#city', '#price'].forEach(sel => {
       const $wrap = $(sel).closest('.mb-3');
-      $(sel).prop('disabled', false).prop('required', true);
+      $(sel).prop('readonly', false).prop('disabled', false).prop('required', true);
       $wrap.removeClass('d-none disabled-field');
     });
     // telefon bezwzględnie niech zostanie wymagany tylko dla niezalogowanych
