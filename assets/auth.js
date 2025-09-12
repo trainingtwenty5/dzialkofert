@@ -180,3 +180,5 @@ onAuthStateChanged(auth, async (user)=>{
   }
   renderMobileAuth(user);
 });
+
+export { auth, db };
