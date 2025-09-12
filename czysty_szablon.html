@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Działkofert - Szablon</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
+
+  <!-- Favicons -->
+  <link rel="icon" type="image/png" sizes="32x32" href="brand-assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="brand-assets/favicon-16x16.png">
+  <link rel="icon" href="brand-assets/favicon.ico">
+  <link rel="apple-touch-icon" href="brand-assets/apple-touch-icon.png">
+  <link rel="manifest" href="brand-assets/site.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="msapplication-TileColor" content="#0f172a">
+  <meta name="msapplication-config" content="brand-assets/browserconfig.xml">
+
+  <!-- Główne style -->
+  <link rel="stylesheet" href="assets/styles.css">
+</head>
+
+<body>
+  <!-- Top Navbar (desktop) -->
+  <div id="top-navbar-placeholder"></div>
+
+  <!-- Header + Nawigacja -->
+  <div id="header-placeholder"></div>
+
+  <!-- User Dashboard -->
+  <div class="container user-dashboard" id="userDashboard" style="display:none;">
+    <div class="user-header">
+      <h2>Moje oferty</h2>
+      <a href="dodaj.html" class="btn btn-primary" id="dashboardAddOffer">
+        <i class="fas fa-plus me-1"></i> Dodaj ofertę
+      </a>
+    </div>
+    <div class="offers-grid" id="userOffers">
+      <!-- Oferty użytkownika -->
+    </div>
+  </div>
+
+  <!-- Miejsce na treść strony -->
+  <main>
+    <!-- Tutaj wstawiasz zawartość swojej strony -->
+    <div class="container">
+      <h1>Tytuł strony</h1>
+      <p>Treść strony...</p>
+    </div>
+  </main>
+
+  <!-- Stopka -->
+  <div id="footer-placeholder"></div>
+
+  <!-- Modale -->
+  <div class="modal" id="loginModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Zaloguj się</h3>
+        <button class="modal-close" aria-label="Zamknij">&times;</button>
+      </div>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginEmail">Email</label>
+          <input type="email" id="loginEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="loginPassword">Hasło</label>
+          <input type="password" id="loginPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Zaloguj się</button>
+      </form>
+
+      <div class="social-login">
+        <button type="button" class="btn btn-google" id="googleLoginBtnLogin">
+          <i class="fab fa-google"></i> Kontynuuj z Google
+        </button>
+      </div>
+
+      <div class="form-footer">
+        <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal" id="registerModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Utwórz konto</h3>
+        <button class="modal-close" aria-label="Zamknij">&times;</button>
+      </div>
+      <form id="registerForm">
+        <div class="form-group">
+          <label for="registerName">Imię i nazwisko</label>
+          <input type="text" id="registerName" required>
+        </div>
+        <div class="form-group">
+          <label for="registerEmail">Email</label>
+          <input type="email" id="registerEmail" required>
+        </div>
+        <div class="form-group">
+          <label for="registerPassword">Hasło</label>
+          <input type="password" id="registerPassword" required>
+        </div>
+        <div class="form-group">
+          <label for="registerConfirmPassword">Potwierdź hasło</label>
+          <input type="password" id="registerConfirmPassword" required>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;">Zarejestruj się</button>
+      </form>
+
+      <div class="social-login mt-3 text-center">
+        <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
+          <i class="fab fa-google"></i> Kontynuuj z Google
+        </button>
+      </div>
+
+      <div class="domain-warning" id="domainWarning" style="display:none;">
+        <i class="fas fa-exclamation-triangle"></i>
+        Uwaga: Logowanie przez Facebook może nie działać na tej domenie.
+        Aby rozwiązać ten problem, dodaj swoją domenę w ustawieniach Firebase.
+      </div>
+
+      <div class="form-footer">
+        <p>Masz już konto? <a href="#" id="switchToLogin">Zaloguj się</a></p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase + logika aplikacji -->
+  <script type="module" src="assets/app.js"></script>
+</body>
+</html>
