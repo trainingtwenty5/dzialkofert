@@ -34,7 +34,7 @@
     <span>Działkofert</span>
   </a>
 
-  <nav class="desktop-nav">
+  <nav class="desktop-nav" aria-label="Główna nawigacja">
     <a href="index.html" class="nav-link">Strona główna</a>
     <a href="oferty.html" class="nav-link">Oferty</a>
     <a href="#contact" class="nav-link">Kontakt</a>
@@ -44,88 +44,30 @@
     <i class="fas fa-plus"></i> Dodaj ofertę
   </a>
 
+  <!-- Przycisk hamburgera -->
+  <button id="navToggle"
+          class="mobile-menu-btn"
+          aria-label="Otwórz menu"
+          aria-controls="mainNav"
+          aria-expanded="false">
+    <i class="fas fa-bars" aria-hidden="true"></i>
+  </button>
+
+  <!-- Menu mobilne -->
+  <nav id="mainNav" class="nav-menu" aria-label="Menu mobilne" hidden>
+    <a href="index.html" class="nav-link" data-nav-close>Strona główna</a>
+    <a href="oferty.html" class="nav-link" data-nav-close>Oferty</a>
+    <a href="dodaj.html" class="nav-link" data-nav-close>Dodaj ofertę</a>
+    <a href="#contact" class="nav-link" data-nav-close>Kontakt</a>
+    <div class="mobile-auth" id="mobileAuth" style="display:none;"></div>
+  </nav>
+
+  <!-- Przycisk skrótu na mobile (opcjonalnie) -->
   <a href="dodaj.html" class="mobile-add-offer">
     <i class="fas fa-plus"></i> Dodaj ofertę
   </a>
-
-  <button class="mobile-menu-btn" aria-label="Otwórz menu">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <nav class="nav-menu">
-    <a href="index.html" class="nav-link">Strona główna</a>
-    <a href="oferty.html" class="nav-link">Oferty</a>
-    <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
-    <a href="#contact" class="nav-link">Kontakt</a>
-    <div class="mobile-auth" id="mobileAuth" style="display:none;"></div>
-  </nav>
 </header>
 
-<!-- Modale (muszą być w DOM, żeby działało logowanie) -->
-<div class="modal" id="loginModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Zaloguj się</h3>
-      <button class="modal-close" aria-label="Zamknij">&times;</button>
-    </div>
-    <form id="loginForm">
-      <div class="form-group">
-        <label for="loginEmail">Email</label>
-        <input type="email" id="loginEmail" required>
-      </div>
-      <div class="form-group">
-        <label for="loginPassword">Hasło</label>
-        <input type="password" id="loginPassword" required>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;">Zaloguj się</button>
-    </form>
-    <div class="social-login">
-      <button type="button" class="btn btn-google" id="googleLoginBtnLogin">
-        <i class="fab fa-google"></i> Kontynuuj z Google
-      </button>
-    </div>
-    <div class="form-footer">
-      <p>Nie masz konta? <a href="#" id="switchToRegister">Zarejestruj się</a></p>
-    </div>
-  </div>
-</div>
-
-<div class="modal" id="registerModal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h3>Utwórz konto</h3>
-      <button class="modal-close" aria-label="Zamknij">&times;</button>
-    </div>
-    <form id="registerForm">
-      <div class="form-group">
-        <label for="registerName">Imię i nazwisko</label>
-        <input type="text" id="registerName" required>
-      </div>
-      <div class="form-group">
-        <label for="registerEmail">Email</label>
-        <input type="email" id="registerEmail" required>
-      </div>
-      <div class="form-group">
-        <label for="registerPassword">Hasło</label>
-        <input type="password" id="registerPassword" required>
-      </div>
-      <div class="form-group">
-        <label for="registerConfirmPassword">Potwierdź hasło</label>
-        <input type="password" id="registerConfirmPassword" required>
-      </div>
-      <button type="submit" class="btn btn-primary" style="width:100%;">Zarejestruj się</button>
-    </form>
-    <div class="social-login mt-3 text-center">
-      <button type="button" class="btn btn-google w-100 mb-2" id="googleLoginBtn">
-        <i class="fab fa-google"></i> Kontynuuj z Google
-      </button>
-    </div>
-    <div class="domain-warning" id="domainWarning" style="display:none;">
-      <i class="fas fa-exclamation-triangle"></i>
-      Uwaga: Logowanie przez Facebook może nie działać na tej domenie.
-    </div>
-    <div class="form-footer">
-      <p>Masz już konto? <a href="#" id="switchToLogin">Zaloguj się</a></p>
-    </div>
-  </div>
-</div>
+<!-- Modale (dla logowania/rejestracji) -->
+<div class="modal" id="loginModal">…</div>
+<div class="modal" id="registerModal">…</div>

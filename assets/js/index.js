@@ -1,30 +1,44 @@
 // assets/js/index.js
 export function initIndexUI() {
-  // Hamburger
-  const mobileMenuBtn = document.querySelector(".mobile-menu-btn");
-  const navMenu = document.querySelector(".nav-menu");
-  const mobileAuth = document.getElementById("mobileAuth");
+  const toggle = document.getElementById('navToggle');
+  const menuId = toggle?.getAttribute('aria-controls') || 'mainNav';
+  const menu = document.getElementById(menuId);
+  if (!toggle || !menu) return;
 
-  if (mobileMenuBtn && navMenu) {
-    mobileMenuBtn.addEventListener("click", () => {
-      navMenu.classList.toggle("active");
-      if (mobileAuth) {
-        mobileAuth.style.display = navMenu.classList.contains("active") ? "flex" : "none";
-      }
-    });
+  const open = () => {
+    menu.hidden = false;
+    menu.classList.add('is-open');
+    toggle.setAttribute('aria-expanded', 'true');
+    document.body.classList.add('nav-open');
+  };
+  const close = () => {
+    menu.classList.remove('is-open');
+    menu.hidden = true;
+    toggle.setAttribute('aria-expanded', 'false');
+    document.body.classList.remove('nav-open');
+  };
 
-    window.addEventListener("resize", () => {
-      if (window.innerWidth > 768) {
-        navMenu.classList.remove("active");
-        if (mobileAuth) mobileAuth.style.display = "none";
-      }
-    });
-  }
+  toggle.addEventListener('click', () => (menu.hidden ? open() : close()));
 
-  // FAQ akordeon (opcjonalnie, jeśli masz takie elementy)
-  document.querySelectorAll(".faq-item .faq-question")?.forEach(q => {
-    q.addEventListener("click", () => q.parentElement.classList.toggle("active"));
+  // zamykanie po kliknięciu poza menu
+  document.addEventListener('click', (e) => {
+    if (!menu.hidden && !menu.contains(e.target) && !toggle.contains(e.target)) close();
   });
 
-  console.log("[index.js] UI bound");
+  // zamykanie po kliknięciu linku z data-nav-close
+  menu.querySelectorAll('[data-nav-close]').forEach(a => {
+    a.addEventListener('click', () => close());
+  });
+
+  // reset na desktopie (gdy zmieniasz rozmiar okna)
+  const MQ = 1024; // piksele
+  const onResize = () => {
+    if (window.innerWidth >= MQ) {
+      menu.hidden = true;
+      menu.classList.remove('is-open');
+      toggle.setAttribute('aria-expanded', 'false');
+      document.body.classList.remove('nav-open');
+    }
+  };
+  window.addEventListener('resize', onResize);
 }
