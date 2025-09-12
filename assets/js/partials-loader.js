@@ -2,39 +2,41 @@
 console.log('[partials-loader] init');
 
 function inject(selector, html) {
-  var slot = document.querySelector(selector);
-  if (slot) slot.innerHTML = html;
+  const slot = document.querySelector(selector);
+  if (!slot) return console.error('[partials-loader] slot not found:', selector);
+  slot.innerHTML = html;
 }
 
 function fetchPartial(pathFromPage) {
-  // próba pobrania pliku HTML (zadziała na http/https)
-  return fetch(pathFromPage, { cache: 'no-store' }).then(function (r) {
-    if (!r.ok) throw new Error('HTTP ' + r.status);
+  return fetch(pathFromPage, { cache: 'no-store' }).then(r => {
+    if (!r.ok) throw new Error('HTTP ' + r.status + ' ' + pathFromPage);
     return r.text();
   });
 }
 
 function loadWithFallback(slotSelector, htmlPathFromPage, jsModuleRelativeToThisFile) {
-  return fetchPartial(htmlPathFromPage).then(function (html) {
+  return fetchPartial(htmlPathFromPage).then(html => {
+    console.log('[partials-loader] fetched', htmlPathFromPage);
     inject(slotSelector, html);
-  }).catch(function (err) {
-    console.warn('[partials-loader] fetch failed -> fallback', htmlPathFromPage, err);
-    // dynamiczny import licząc ścieżkę od TEGO pliku (assets/js/partials-loader.js)
-    var url = new URL(jsModuleRelativeToThisFile, import.meta.url).href;
-    return import(url).then(function (mod) {
+  }).catch(err => {
+    console.warn('[partials-loader] fetch failed → fallback to JS module', err.message);
+    const url = new URL(jsModuleRelativeToThisFile, import.meta.url).href;
+    return import(url).then(mod => {
+      console.log('[partials-loader] imported', url);
       inject(slotSelector, mod.default || '');
+    }).catch(e => {
+      console.error('[partials-loader] fallback import failed', e);
+      throw e;
     });
   });
 }
 
-// publiczna obietnica
 window.partialsReady = Promise.all([
-  // Uwaga na ścieżki:
-  // htmlPathFromPage: relative od strony (np. szablon.html leży w root → "partials/*.html")
-  // jsModuleRelativeToThisFile: relative od pliku "assets/js/partials-loader.js"
+  // htmlPathFromPage → względem strony (szablon.html w root → "partials/...").
+  // jsModuleRelativeToThisFile → względem TEGO pliku (assets/js/ → ../../partials/...).
   loadWithFallback('#headerSlot', 'partials/header.html', '../../partials/header.js'),
-  loadWithFallback('#footerSlot', 'partials/footer.html', '../../partials/footer.js')
-]).then(function () {
+  loadWithFallback('#footerSlot', 'partials/footer.html', '../../partials/footer.js'),
+]).then(() => {
   document.dispatchEvent(new CustomEvent('partials:ready'));
   console.log('[partials-loader] ready');
 });

@@ -5,13 +5,12 @@
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Działkofert – Szablon</title>
 
-  <!-- Style/ikony jak w index.html -->
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="assets/main.css" />
 </head>
 <body>
-  <!-- Header z partiala -->
+  <!-- tu wstrzykniemy header -->
   <div id="headerSlot"></div>
 
   <main class="container" style="margin-top:120px;">
@@ -19,11 +18,10 @@
     <p>Tu wstaw swoją treść…</p>
   </main>
 
-  <!-- Footer z partiala -->
+  <!-- tu wstrzykniemy footer -->
   <div id="footerSlot"></div>
 
-  <!-- Bootstrap – ładuje partiale i resztę JS -->
-  <script type="module" src="assets/js/bootstrap.js?v=1"></script>
-
+  <!-- ŁADUJ TYLKO TO (żadnych auth.js / index.js osobno!) -->
+  <script type="module" src="assets/js/bootstrap.js?v=3"></script>
 </body>
 </html>
