@@ -1,18 +1,15 @@
-// auth.js
-// Uwaga: brak top-level await i brak optional chaining – działa też na starszych przeglądarkach.
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+// assets/js/auth.js
+import { initializeApp, getApps } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import {
   getAuth, onAuthStateChanged, signOut,
   signInWithEmailAndPassword, createUserWithEmailAndPassword, updateProfile,
   GoogleAuthProvider, signInWithPopup, signInWithRedirect,
   setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import {
+  getFirestore, doc, setDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-console.log('[auth.js] start');
-
-// --- Konfiguracja ---
 const firebaseConfig = {
   apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
   authDomain: "base-468e0.firebaseapp.com",
@@ -22,230 +19,218 @@ const firebaseConfig = {
   appId: "1:829161895559:web:d832541aac05b35847ea22"
 };
 
-// --- Init ---
-export const app  = initializeApp(firebaseConfig);
-export const auth = getAuth(app);
-export const db   = getFirestore(app);
-auth.languageCode = 'pl';
+// Init only once
+const app = getApps().length ? getApps()[0] : initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db   = getFirestore(app);
+auth.languageCode = "pl";
 
-// Persystencja – bez top-level await
-(function useBestPersistence(){
-  setPersistence(auth, browserLocalPersistence).catch(function(){
-    return setPersistence(auth, browserSessionPersistence);
-  }).catch(function(){
-    return setPersistence(auth, inMemoryPersistence);
-  }).catch(function(e){
-    console.warn('[auth.js] persistence error', e);
-  });
-})();
+// najlepsza możliwa persystencja
+async function useBestPersistence() {
+  try { await setPersistence(auth, browserLocalPersistence); }
+  catch { try { await setPersistence(auth, browserSessionPersistence); }
+  catch { await setPersistence(auth, inMemoryPersistence); } }
+}
 
-// DOM refs (pobieramy po załadowaniu DOM, żeby nic nie było null)
-document.addEventListener('DOMContentLoaded', function(){
-  console.log('[auth.js] DOMContentLoaded');
+const googleProvider = new GoogleAuthProvider();
+googleProvider.setCustomParameters({ prompt: "select_account" });
 
-  var authButtons   = document.getElementById('authButtons');
-  var userMenu      = document.getElementById('userMenu');
-  var loginBtn      = document.getElementById('loginBtn');
-  var registerBtn   = document.getElementById('registerBtn');
-  var accountBtn    = document.getElementById('accountBtn');
-  var logoutBtn     = document.getElementById('logoutBtn');
-  var loginModal    = document.getElementById('loginModal');
-  var registerModal = document.getElementById('registerModal');
-  var closeBtns     = document.querySelectorAll('.modal-close');
-  var switchToReg   = document.getElementById('switchToRegister');
-  var switchToLog   = document.getElementById('switchToLogin');
-  var loginForm     = document.getElementById('loginForm');
-  var registerForm  = document.getElementById('registerForm');
+// --- helpers
+function getRefs() {
+  return {
+    // header/topbar
+    authButtons:  document.getElementById("authButtons"),
+    userMenu:     document.getElementById("userMenu"),
+    accountBtn:   document.getElementById("accountBtn"),
+    logoutBtn:    document.getElementById("logoutBtn"),
+    loginBtn:     document.getElementById("loginBtn"),
+    registerBtn:  document.getElementById("registerBtn"),
+    // modals
+    loginModal:    document.getElementById("loginModal"),
+    registerModal: document.getElementById("registerModal"),
+    closeBtns:     document.querySelectorAll(".modal-close"),
+    switchToReg:   document.getElementById("switchToRegister"),
+    switchToLog:   document.getElementById("switchToLogin"),
+    loginForm:     document.getElementById("loginForm"),
+    registerForm:  document.getElementById("registerForm"),
+    // mobile
+    navMenu:     document.querySelector(".nav-menu"),
+    mobileAuth:  document.getElementById("mobileAuth"),
+    // google
+    gBtn1: document.getElementById("googleLoginBtn"),
+    gBtn2: document.getElementById("googleLoginBtnLogin"),
+    // dashboard
+    userDashboard: document.getElementById("userDashboard"),
+    userOffers:    document.getElementById("userOffers"),
+  };
+}
 
-  function openModal(m){ if (m) m.style.display = 'flex'; }
-  function closeModal(m){ if (m) m.style.display = 'none'; }
-  window.__openLoginModal = function(){ openModal(loginModal); };
-  window.__openRegisterModal = function(){ openModal(registerModal); };
+const openModal  = (m) => m && (m.style.display = "flex");
+const closeModal = (m) => m && (m.style.display = "none");
 
-  // Domena – hint
-  var hint = document.getElementById('domainWarning');
-  if (hint) {
-    var knownGood = ['localhost','127.0.0.1','trainingtwenty5.github.io'];
-    if (knownGood.indexOf(location.hostname) === -1) hint.style.display = 'block';
+function niceAuthError(err) {
+  const code = err?.code || "";
+  switch (code) {
+    case "auth/invalid-email":             return "Nieprawidłowy adres e-mail.";
+    case "auth/missing-password":          return "Podaj hasło.";
+    case "auth/invalid-credential":        return "Nieprawidłowy e-mail lub hasło.";
+    case "auth/user-not-found":            return "Użytkownik nie istnieje.";
+    case "auth/wrong-password":            return "Błędne hasło.";
+    case "auth/too-many-requests":         return "Za dużo prób. Spróbuj później.";
+    case "auth/unauthorized-domain":       return `Domena ${location.hostname} nie jest autoryzowana w Firebase.`;
+    case "auth/popup-blocked":             return "Przeglądarka zablokowała okno logowania Google.";
+    case "auth/operation-not-supported-in-this-environment":
+                                           return "To środowisko nie wspiera popup (np. file://). Uruchom przez http/https.";
+    default: return `Błąd: ${code || (err?.message || "nieznany")}`;
+  }
+}
+
+function renderMobileAuth(user) {
+  const { navMenu, mobileAuth } = getRefs();
+  if (!mobileAuth) return;
+
+  if (user) {
+    const label = user.displayName ? user.displayName.split(" ")[0] : (user.email || "Użytkownik");
+    mobileAuth.innerHTML = `
+      <div class="nav-link" style="font-weight:600;">
+        <i class="fas fa-user"></i> ${label}
+      </div>
+      <a href="#userDashboard" class="nav-link" id="mobileAccountLink">Moje konto</a>
+      <button class="btn btn-secondary" id="mobileLogoutBtn" style="width:100%;">
+        <i class="fas fa-sign-out-alt"></i> Wyloguj się
+      </button>
+    `;
+  } else {
+    mobileAuth.innerHTML = `
+      <a href="#" id="loginLink" class="nav-link">Zaloguj się</a>
+      <a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>
+    `;
   }
 
-  // Google provider
-  var googleProvider = new GoogleAuthProvider();
-  googleProvider.setCustomParameters({ prompt: 'select_account' });
+  const { loginModal, registerModal } = getRefs();
+  const loginLink = document.getElementById("loginLink");
+  const registerLink = document.getElementById("registerLink");
+  const mobileLogoutBtn = document.getElementById("mobileLogoutBtn");
+  const mobileAccountLink = document.getElementById("mobileAccountLink");
 
-  function renderMobileAuth(user){
-    var navMenu = document.querySelector('.nav-menu');
-    var mobileAuthC = document.getElementById('mobileAuth');
-    if (!mobileAuthC) return;
+  loginLink && loginLink.addEventListener("click", (e) => {
+    e.preventDefault(); openModal(loginModal);
+    navMenu?.classList.remove("active"); mobileAuth.style.display = "none";
+  });
 
-    if (user) {
-      var label = user.displayName ? user.displayName.split(' ')[0] : (user.email || 'Użytkownik');
-      mobileAuthC.innerHTML =
-        '<div class="nav-link" style="font-weight:600;">' +
-          '<i class="fas fa-user"></i> ' + label +
-        '</div>' +
-        '<a href="#userDashboard" class="nav-link" id="mobileAccountLink">Moje konto</a>' +
-        '<button class="btn btn-secondary" id="mobileLogoutBtn" style="width:100%;">' +
-          '<i class="fas fa-sign-out-alt"></i> Wyloguj się' +
-        '</button>';
+  registerLink && registerLink.addEventListener("click", (e) => {
+    e.preventDefault(); openModal(registerModal);
+    navMenu?.classList.remove("active"); mobileAuth.style.display = "none";
+  });
+
+  mobileLogoutBtn && mobileLogoutBtn.addEventListener("click", async () => {
+    try { await signOut(auth); } catch(e){ console.error(e); }
+    navMenu?.classList.remove("active");
+    mobileAuth.style.display = "none";
+  });
+
+  mobileAccountLink && mobileAccountLink.addEventListener("click", (e) => {
+    e.preventDefault();
+    document.getElementById("userDashboard")?.scrollIntoView({ behavior:"smooth" });
+    navMenu?.classList.remove("active");
+    mobileAuth.style.display = "none";
+  });
+
+  // aktualny stan widoczności
+  mobileAuth.style.display = navMenu?.classList.contains("active") ? "flex" : "none";
+}
+
+async function signInWithGoogleSmart() {
+  const ok = ["http:", "https:"].includes(location.protocol);
+  if (!ok) return alert("Uruchom stronę przez http/https (nie file://).");
+  try {
+    await signInWithPopup(auth, googleProvider);
+    const { loginModal, registerModal, navMenu, mobileAuth } = getRefs();
+    closeModal(loginModal); closeModal(registerModal);
+    navMenu?.classList.remove("active");
+    mobileAuth?.setAttribute("style","display:none;");
+  } catch (err) {
+    console.error("[google]", err);
+    if (err?.code === "auth/popup-blocked" || err?.code === "auth/operation-not-supported-in-this-environment") {
+      await signInWithRedirect(auth, googleProvider);
     } else {
-      mobileAuthC.innerHTML =
-        '<a href="#" id="loginLink" class="nav-link">Zaloguj się</a>' +
-        '<a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>';
-    }
-
-    var loginLink = document.getElementById('loginLink');
-    var registerLink = document.getElementById('registerLink');
-    var mobileLogoutBtn = document.getElementById('mobileLogoutBtn');
-    var mobileAccountLink = document.getElementById('mobileAccountLink');
-
-    if (loginLink) loginLink.addEventListener('click', function(e){
-      e.preventDefault();
-      openModal(loginModal);
-      if (navMenu) navMenu.classList.remove('active');
-      mobileAuthC.style.display = 'none';
-    });
-
-    if (registerLink) registerLink.addEventListener('click', function(e){
-      e.preventDefault();
-      openModal(registerModal);
-      if (navMenu) navMenu.classList.remove('active');
-      mobileAuthC.style.display = 'none';
-    });
-
-    if (mobileLogoutBtn) mobileLogoutBtn.addEventListener('click', function(){
-      signOut(auth).catch(function(e){ console.error(e); });
-      if (navMenu) navMenu.classList.remove('active');
-      mobileAuthC.style.display = 'none';
-    });
-
-    if (mobileAccountLink) mobileAccountLink.addEventListener('click', function(e){
-      e.preventDefault();
-      var ud = document.getElementById('userDashboard');
-      if (ud && ud.scrollIntoView) ud.scrollIntoView({behavior:'smooth'});
-      if (navMenu) navMenu.classList.remove('active');
-      mobileAuthC.style.display = 'none';
-    });
-
-    if (mobileAuthC) {
-      var show = navMenu && navMenu.classList.contains('active');
-      mobileAuthC.style.display = show ? 'flex' : 'none';
+      alert(niceAuthError(err));
     }
   }
+}
 
-  function niceAuthError(err){
-    var code = (err && err.code) ? err.code : '';
-    switch (code) {
-      case 'auth/invalid-email':             return 'Nieprawidłowy adres e-mail.';
-      case 'auth/missing-password':          return 'Podaj hasło.';
-      case 'auth/invalid-credential':        return 'Nieprawidłowy e-mail lub hasło.';
-      case 'auth/user-not-found':            return 'Użytkownik nie istnieje.';
-      case 'auth/wrong-password':            return 'Błędne hasło.';
-      case 'auth/too-many-requests':         return 'Za dużo prób. Spróbuj później.';
-      case 'auth/unauthorized-domain':       return 'Domena nie jest autoryzowana w Firebase.';
-      case 'auth/popup-blocked':             return 'Okno Google zablokowane. Użyj przekierowania.';
-      case 'auth/operation-not-supported-in-this-environment':
-                                             return 'To środowisko nie wspiera popup (np. file://).';
-      default: return 'Błąd: ' + (code || (err && err.message) || 'nieznany');
-    }
-  }
+export async function initAuthUI() {
+  await useBestPersistence();
 
-  // Zdarzenia UI auth
-  if (loginBtn)    loginBtn.addEventListener('click', function(){ openModal(loginModal); });
-  if (registerBtn) registerBtn.addEventListener('click', function(){ openModal(registerModal); });
-  if (switchToReg) switchToReg.addEventListener('click', function(e){ e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
-  if (switchToLog) switchToLog.addEventListener('click', function(e){ e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
-  if (closeBtns && closeBtns.length) {
-    for (var i=0;i<closeBtns.length;i++){
-      closeBtns[i].addEventListener('click', function(){
-        var m = this.closest('.modal');
-        if (m) closeModal(m);
-      });
-    }
-  }
-  window.addEventListener('click', function(e){
-    if (e.target && e.target.classList && e.target.classList.contains('modal')) closeModal(e.target);
-  });
+  // zdarzenia UI (po partials:ready elementy już istnieją)
+  const {
+    loginBtn, registerBtn, logoutBtn, accountBtn,
+    loginModal, registerModal, closeBtns, switchToReg, switchToLog,
+    loginForm, registerForm, gBtn1, gBtn2
+  } = getRefs();
 
-  if (accountBtn) accountBtn.addEventListener('click', function(){
-    var ud = document.getElementById('userDashboard');
-    if (ud && ud.scrollIntoView) ud.scrollIntoView({behavior:'smooth'});
-  });
+  loginBtn     && loginBtn.addEventListener("click", () => openModal(loginModal));
+  registerBtn  && registerBtn.addEventListener("click", () => openModal(registerModal));
+  switchToReg  && switchToReg.addEventListener("click", (e) => { e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
+  switchToLog  && switchToLog.addEventListener("click", (e) => { e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
+  closeBtns?.forEach(b => b.addEventListener("click", () => closeModal(b.closest(".modal"))));
+  window.addEventListener("click", (e) => { if (e.target.classList?.contains("modal")) closeModal(e.target); });
+  accountBtn && accountBtn.addEventListener("click", () =>
+    document.getElementById("userDashboard")?.scrollIntoView({ behavior:"smooth" })
+  );
 
-  if (loginForm) loginForm.addEventListener('submit', function(e){
+  gBtn1 && gBtn1.addEventListener("click", (e) => { e.preventDefault(); signInWithGoogleSmart(); });
+  gBtn2 && gBtn2.addEventListener("click", (e) => { e.preventDefault(); signInWithGoogleSmart(); });
+
+  loginForm && loginForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    var email = (document.getElementById('loginEmail').value || '').trim();
-    var pass  = document.getElementById('loginPassword').value;
-    signInWithEmailAndPassword(auth, email, pass).catch(function(err){
-      console.error('[login]', err); alert(niceAuthError(err));
-    });
+    const email = document.getElementById("loginEmail").value.trim();
+    const pass  = document.getElementById("loginPassword").value;
+    try { await signInWithEmailAndPassword(auth, email, pass); }
+    catch (err) { console.error("[login]", err); alert(niceAuthError(err)); }
   });
 
-  if (registerForm) registerForm.addEventListener('submit', function(e){
+  registerForm && registerForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-    var name  = (document.getElementById('registerName').value || '').trim();
-    var email = (document.getElementById('registerEmail').value || '').trim();
-    var pass1 = document.getElementById('registerPassword').value;
-    var pass2 = document.getElementById('registerConfirmPassword').value;
-    if (pass1 !== pass2) { alert('Hasła nie są identyczne!'); return; }
-    createUserWithEmailAndPassword(auth, email, pass1)
-      .then(function(res){
-        var user = res.user;
-        var p = [];
-        if (name) p.push(updateProfile(user, { displayName: name }));
-        p.push(setDoc(doc(db, "users", user.uid), { name: name || null, email: email, createdAt: new Date(), provider: "password" }, { merge: true }));
-        return Promise.all(p);
-      })
-      .catch(function(err){
-        console.error('[register]', err); alert(niceAuthError(err));
-      });
+    const name  = document.getElementById("registerName").value.trim();
+    const email = document.getElementById("registerEmail").value.trim();
+    const pass1 = document.getElementById("registerPassword").value;
+    const pass2 = document.getElementById("registerConfirmPassword").value;
+    if (pass1 !== pass2) return alert("Hasła nie są identyczne!");
+    try {
+      const { user } = await createUserWithEmailAndPassword(auth, email, pass1);
+      if (name) await updateProfile(user, { displayName: name });
+      await setDoc(doc(db, "users", user.uid), { name: name || null, email, createdAt: new Date(), provider: "password" }, { merge: true });
+    } catch (err) {
+      console.error("[register]", err); alert(niceAuthError(err));
+    }
   });
 
-  function signInWithGoogleSmart(){
-    var ok = (location && (location.protocol === 'http:' || location.protocol === 'https:'));
-    if (!ok) { alert('Uruchom stronę przez http/https (nie file://).'); return; }
-    signInWithPopup(auth, googleProvider)
-      .then(function(){
-        closeModal(loginModal); closeModal(registerModal);
-        var nav = document.querySelector('.nav-menu');
-        if (nav) nav.classList.remove('active');
-        var mAuth = document.getElementById('mobileAuth');
-        if (mAuth) mAuth.style.display = 'none';
-      })
-      .catch(function(err){
-        console.error('[google]', err);
-        if (err && (err.code === 'auth/popup-blocked' || err.code === 'auth/operation-not-supported-in-this-environment')) {
-          signInWithRedirect(auth, googleProvider);
-        } else {
-          alert(niceAuthError(err));
-        }
-      });
-  }
-  var gBtn1 = document.getElementById('googleLoginBtn');
-  var gBtn2 = document.getElementById('googleLoginBtnLogin');
-  if (gBtn1) gBtn1.addEventListener('click', function(e){ e.preventDefault(); signInWithGoogleSmart(); });
-  if (gBtn2) gBtn2.addEventListener('click', function(e){ e.preventDefault(); signInWithGoogleSmart(); });
-
-  if (logoutBtn) logoutBtn.addEventListener('click', function(){
-    signOut(auth).catch(function(e){ console.error(e); });
+  logoutBtn && logoutBtn.addEventListener("click", async () => {
+    try { await signOut(auth); } catch(e){ console.error(e); }
   });
 
-  // Stan auth → UI + event dla innych modułów
-  onAuthStateChanged(auth, function(user){
-    console.log('[auth.js] onAuthStateChanged', !!user);
+  // reakcja na stan logowania – ZA KAŻDYM RAZEM świeże referencje
+  onAuthStateChanged(auth, (user) => {
+    const { authButtons, userMenu, accountBtn, userDashboard, mobileAuth } = getRefs();
+
     if (user) {
-      if (authButtons) authButtons.style.display = 'none';
-      if (userMenu)    userMenu.style.display = 'flex';
+      authButtons && (authButtons.style.display = "none");
+      userMenu    && (userMenu.style.display = "flex");
       if (accountBtn) {
-        var label = user.displayName ? user.displayName.split(' ')[0] : (user.email || 'Moje konto');
-        accountBtn.innerHTML = '<i class="fas fa-user me-1"></i> ' + label;
+        const label = user.displayName ? user.displayName.split(" ")[0] : (user.email || "Moje konto");
+        accountBtn.innerHTML = `<i class="fas fa-user me-1"></i> ${label}`;
       }
+      userDashboard && (userDashboard.style.display = "block");
     } else {
-      if (authButtons) authButtons.style.display = 'flex';
-      if (userMenu)    userMenu.style.display = 'none';
+      authButtons && (authButtons.style.display = "flex");
+      userMenu    && (userMenu.style.display = "none");
+      userDashboard && (userDashboard.style.display = "none");
+      const uo = document.getElementById("userOffers");
+      uo && (uo.innerHTML = "");
     }
-    renderMobileAuth(user);
-    document.dispatchEvent(new CustomEvent('auth:state', { detail: { user: user } }));
+    renderMobileAuth(user); // mobilne linki/login/logout
   });
 
-});
+  console.log("[auth.js] initialized");
+}

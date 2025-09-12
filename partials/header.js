@@ -27,9 +27,11 @@ export default `
 
 <header>
   <a href="index.html" class="logo" aria-label="Działkofert">
-    <img src="brand-assets/android-chrome-192x192.png"
-         srcset="brand-assets/android-chrome-192x192.png 1x, brand-assets/android-chrome-512x512.png 2x"
-         alt="Działkofert" width="40" height="40" loading="eager" decoding="async" fetchpriority="high" />
+    <img
+      src="brand-assets/android-chrome-192x192.png"
+      srcset="brand-assets/android-chrome-192x192.png 1x, brand-assets/android-chrome-512x512.png 2x"
+      alt="Działkofert" width="40" height="40" loading="eager" decoding="async" fetchpriority="high"
+    />
     <span>Działkofert</span>
   </a>
 
@@ -39,8 +41,13 @@ export default `
     <a href="#contact" class="nav-link">Kontakt</a>
   </nav>
 
-  <a href="dodaj.html" class="desktop-add-offer"><i class="fas fa-plus"></i> Dodaj ofertę</a>
-  <a href="dodaj.html" class="mobile-add-offer"><i class="fas fa-plus"></i> Dodaj ofertę</a>
+  <a href="dodaj.html" class="desktop-add-offer">
+    <i class="fas fa-plus"></i> Dodaj ofertę
+  </a>
+
+  <a href="dodaj.html" class="mobile-add-offer">
+    <i class="fas fa-plus"></i> Dodaj ofertę
+  </a>
 
   <button class="mobile-menu-btn" aria-label="Otwórz menu">
     <i class="fas fa-bars"></i>
