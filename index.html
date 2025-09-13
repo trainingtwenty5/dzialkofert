@@ -1,24 +1,21 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Działkofert - Dodaj darmowe ogłoszenie</title>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
 
-  <!-- Favicons / PWA / MS Tiles -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"/>
+
+  <!-- Favicons / PWA -->
   <link rel="icon" type="image/png" sizes="32x32" href="brand-assets/favicon-32x32.png">
   <link rel="icon" type="image/png" sizes="16x16" href="brand-assets/favicon-16x16.png">
-  <link rel="icon" href="brand-assets/favicon.ico">
   <link rel="apple-touch-icon" href="brand-assets/apple-touch-icon.png">
   <link rel="manifest" href="brand-assets/site.webmanifest">
   <meta name="theme-color" content="#0f172a">
-  <meta name="msapplication-TileColor" content="#0f172a">
-  <meta name="msapplication-config" content="brand-assets/browserconfig.xml">
 
-  <link rel="stylesheet" href="assets/main.css" />
+  <link rel="stylesheet" href="assets/main.css"/>
 </head>
 
 <body>
@@ -74,20 +71,23 @@
       <i class="fas fa-plus"></i> Dodaj ofertę
     </a>
 
-    <button class="mobile-menu-btn" aria-label="Otwórz menu">
+    <button class="mobile-menu-btn" aria-label="Otwórz menu" aria-expanded="false">
       <i class="fas fa-bars"></i>
     </button>
 
-    <nav class="nav-menu">
+    <nav class="nav-menu" aria-hidden="true">
       <a href="index.html" class="nav-link">Strona główna</a>
       <a href="oferty.html" class="nav-link">Oferty</a>
       <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
       <a href="#contact" class="nav-link">Kontakt</a>
-      <div class="mobile-auth" id="mobileAuth" style="display:none;"></div>
+      <div class="mobile-auth" id="mobileAuth" style="display:none;">
+        <a href="#" id="loginLink" class="nav-link">Zaloguj się</a>
+        <a href="#" id="registerLink" class="nav-link">Zarejestruj się</a>
+      </div>
     </nav>
   </header>
 
-  <!-- Login Modal -->
+  <!-- MODALE -->
   <div class="modal" id="loginModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -118,7 +118,6 @@
     </div>
   </div>
 
-  <!-- Register Modal -->
   <div class="modal" id="registerModal">
     <div class="modal-content">
       <div class="modal-header">
@@ -153,8 +152,7 @@
 
       <div class="domain-warning" id="domainWarning" style="display:none;">
         <i class="fas fa-exclamation-triangle"></i>
-        Uwaga: Logowanie przez Facebook może nie działać na tej domenie.
-        Aby rozwiązać ten problem, dodaj swoją domenę w ustawieniach Firebase.
+        Uwaga: Logowanie może nie działać na tej domenie, jeśli nie dodasz jej w Firebase (Authorized domains).
       </div>
 
       <div class="form-footer">
@@ -163,7 +161,7 @@
     </div>
   </div>
 
-  <!-- User Dashboard -->
+  <!-- DASHBOARD (opcjonalny na index) -->
   <div class="container user-dashboard" id="userDashboard" style="display:none;">
     <div class="user-header">
       <h2>Moje oferty</h2>
@@ -174,121 +172,100 @@
     <div class="offers-grid" id="userOffers"></div>
   </div>
 
-  <!-- Sekcje strony -->
-  <section class="hero" id="home">
-    <div class="container hero-content">
-      <div class="hero-text">
-        <h1>Znajdź swoją wymarzoną działkę</h1>
-        <p>Dodaj bezpłatne ogłoszenie lub przeglądaj oferty idealnych działek w najlepszych lokalizacjach w Polsce.</p>
-        <div class="hero-buttons">
-          <a href="oferty.html" class="btn btn-primary"><i class="fas fa-search"></i> Przeglądaj oferty</a>
-          <a href="dodaj.html" class="btn btn-secondary" id="heroAddOffer"><i class="fas fa-plus"></i> Dodaj ogłoszenie</a>
+  <!-- TREŚĆ STRONY -->
+  <main>
+    <section class="hero" id="home">
+      <div class="container hero-content">
+        <div class="hero-text">
+          <h1>Znajdź swoją wymarzoną działkę</h1>
+          <p>Dodaj bezpłatne ogłoszenie lub przeglądaj oferty idealnych działek w najlepszych lokalizacjach w Polsce.</p>
+          <div class="hero-buttons">
+            <a href="oferty.html" class="btn btn-primary"><i class="fas fa-search"></i> Przeglądaj oferty</a>
+            <a href="dodaj.html" class="btn btn-secondary" id="heroAddOffer"><i class="fas fa-plus"></i> Dodaj ogłoszenie</a>
+          </div>
+        </div>
+        <div class="hero-image">
+          <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?auto=format&fit=crop&w=800&q=80" alt="Działka">
         </div>
       </div>
-      <div class="hero-image">
-        <img src="https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Działka" style="max-width:100%;height:auto;">
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="features" class="section features">
-    <div class="container">
-      <div class="section-title">
-        <h2>Dlaczego warto wybrać Działkofert?</h2>
-        <p>Skuteczna sprzedaż działek bez zbędnych kosztów</p>
+    <section id="features" class="section features">
+      <div class="container">
+        <div class="section-title">
+          <h2>Dlaczego warto wybrać Działkofert?</h2>
+          <p>Skuteczna sprzedaż działek bez zbędnych kosztów</p>
+        </div>
+        <div class="features-grid">
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
+            <h3>Analiza rynkowa</h3>
+            <p>Darmowa analiza wartości Twojej działki na podstawie aktualnych danych rynkowych.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-users"></i></div>
+            <h3>Szeroki zasięg</h3>
+            <p>Dotrzyj do tysięcy potencjalnych kupujących w całej Polsce.</p>
+          </div>
+          <div class="feature-card">
+            <div class="feature-icon"><i class="fas fa-euro-sign"></i></div>
+            <h3>Zero opłat</h3>
+            <p>Dodawanie i przeglądanie ogłoszeń jest całkowicie darmowe.</p>
+          </div>
+        </div>
       </div>
-      <div class="features-grid">
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-          <h3>Analiza rynkowa</h3>
-          <p>Darmowa analiza wartości Twojej działki na podstawie aktualnych danych rynkowych.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-users"></i></div>
-          <h3>Szeroki zasięg</h3>
-          <p>Dotrzyj do tysięcy potencjalnych kupujących w całej Polsce.</p>
-        </div>
-        <div class="feature-card">
-          <div class="feature-icon"><i class="fas fa-euro-sign"></i></div>
-          <h3>Zero opłat</h3>
-          <p>Dodawanie i przeglądanie ogłoszeń jest całkowicie darmowe.</p>
-        </div>
-      </div>
-    </div>
-  </section>
+    </section>
 
-  <section id="how-it-works" class="section course-info">
-    <div class="container">
-      <div class="info-container">
-        <div class="info-image">
-          <img src="https://files.cdn.thinkific.com/file_uploads/1010971/images/2fe/9ae/bbf/new2.png" alt="Jak działa Działkofert" style="max-width:100%;height:auto;">
-          <div class="info-badge">Proste i szybkie</div>
+    <section id="faq" class="section faq">
+      <div class="container">
+        <div class="section-title">
+          <h2>Często zadawane pytania</h2>
+          <p>Znajdź odpowiedzi na najczęstsze pytania</p>
         </div>
-        <div class="info-content">
-          <h2>Jak to działa?</h2>
-          <ul class="info-list">
-            <li>Dodajesz numer działki i podstawowe informacje</li>
-            <li>Nasi eksperci przygotowują analizę i ogłoszenie</li>
-            <li>W ciągu 48 godzin Twoja oferta jest online</li>
-            <li>Kontaktujesz się z zainteresowanymi kupującymi</li>
-            <li>Finalizujesz transakcję bez pośredników</li>
-          </ul>
-          <a href="dodaj.html" class="btn btn-primary">
-            <i class="fas fa-plus-circle"></i> Dodaj ogłoszenie
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section id="faq" class="section faq">
-    <div class="container">
-      <div class="section-title">
-        <h2>Często zadawane pytania</h2>
-        <p>Znajdź odpowiedzi na najczęstsze pytania</p>
-      </div>
-      <div class="faq-container">
-        <div class="faq-item">
-          <div class="faq-question">
-            <span>Ile kosztuje dodanie ogłoszenia?</span>
-            <i class="fas fa-chevron-down"></i>
+        <div class="faq-container">
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Ile kosztuje dodanie ogłoszenia?</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>Dodanie ogłoszenia jest całkowicie darmowe. Nie pobieramy żadnych opłat ani prowizji.</p>
+            </div>
           </div>
-          <div class="faq-answer">
-            <p>Dodanie ogłoszenia jest całkowicie darmowe. Nie pobieramy żadnych opłat ani prowizji.</p>
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Jak długo ogłoszenie jest aktywne?</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>Ogłoszenie jest aktywne przez 90 dni. Po tym czasie możesz je bezpłatnie przedłużyć.</p>
+            </div>
           </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question">
-            <span>Jak długo ogłoszenie jest aktywne?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            <p>Ogłoszenie jest aktywne przez 90 dni. Po tym czasie możesz je bezpłatnie przedłużyć.</p>
-          </div>
-        </div>
-        <div class="faq-item">
-          <div class="faq-question">
-            <span>Czy potrzebuję dokumentów własności?</span>
-            <i class="fas fa-chevron-down"></i>
-          </div>
-          <div class="faq-answer">
-            <p>Do dodania ogłoszenia nie potrzebujesz dokumentów. Będą one konieczne dopiero przy finalizacji transakcji.</p>
+          <div class="faq-item">
+            <div class="faq-question">
+              <span>Czy potrzebuję dokumentów własności?</span>
+              <i class="fas fa-chevron-down"></i>
+            </div>
+            <div class="faq-answer">
+              <p>Do dodania ogłoszenia nie potrzebujesz dokumentów. Będą one konieczne dopiero przy finalizacji transakcji.</p>
+            </div>
           </div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="cta">
-    <div class="container">
-      <h2>Gotowy, aby sprzedać swoją działkę?</h2>
-      <p>Dołącz do tysięcy zadowolonych sprzedających i kupujących</p>
-      <a href="dodaj.html" class="btn btn-primary">
-        <i class="fas fa-plus-circle"></i> Dodaj bezpłatne ogłoszenie
-      </a>
-    </div>
-  </section>
+    <section class="cta">
+      <div class="container">
+        <h2>Gotowy, aby sprzedać swoją działkę?</h2>
+        <p>Dołącz do tysięcy zadowolonych sprzedających i kupujących</p>
+        <a href="dodaj.html" class="btn btn-primary">
+          <i class="fas fa-plus-circle"></i> Dodaj bezpłatne ogłoszenie
+        </a>
+      </div>
+    </section>
+  </main>
 
+  <!-- STOPKA -->
   <footer id="contact">
     <div class="container">
       <div class="footer-container">
@@ -329,9 +306,9 @@
     </div>
   </footer>
 
-  <!-- Importy modułów -->
-  <script type="module" src="js/index.js"></script>
+  <!-- Skrypty -->
   <script type="module" src="js/auth.js"></script>
-  <script type="module" src="js/dashboard.js?v=3"></script>
+  <script type="module" src="js/index.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>
