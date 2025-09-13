@@ -414,4 +414,3 @@ document.addEventListener('DOMContentLoaded', loadGoogleMaps);
 
 // Opcjonalnie: jeżeli auth.js publikuje usera globalnie, tutaj możemy zareagować
 // window.onUserReady = ({ email, uid }) => loadUserOffers(email, uid);
-	
