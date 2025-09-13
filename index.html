@@ -7,36 +7,21 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/proj4js/2.8.0/proj4.js"></script>
-   <link rel="stylesheet" href="assets/main.css" />
-  
-<!-- Favicons -->
-<link rel="icon" type="image/png" sizes="32x32" href="brand-assets/favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="brand-assets/favicon-16x16.png">
-<link rel="icon" href="brand-assets/favicon.ico">
 
-<!-- Apple/iOS -->
-<link rel="apple-touch-icon" href="brand-assets/apple-touch-icon.png">
+  <!-- Favicons / PWA / MS Tiles -->
+  <link rel="icon" type="image/png" sizes="32x32" href="brand-assets/favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="brand-assets/favicon-16x16.png">
+  <link rel="icon" href="brand-assets/favicon.ico">
+  <link rel="apple-touch-icon" href="brand-assets/apple-touch-icon.png">
+  <link rel="manifest" href="brand-assets/site.webmanifest">
+  <meta name="theme-color" content="#0f172a">
+  <meta name="msapplication-TileColor" content="#0f172a">
+  <meta name="msapplication-config" content="brand-assets/browserconfig.xml">
 
-<!-- PWA -->
-<link rel="manifest" href="brand-assets/site.webmanifest">
-<meta name="theme-color" content="#0f172a">
-
-<!-- Microsoft Tiles -->
-<meta name="msapplication-TileColor" content="#0f172a">
-<meta name="msapplication-config" content="brand-assets/browserconfig.xml">
-
-
+  <link rel="stylesheet" href="assets/main.css" />
 </head>
 
-	
-	
-	
- 
-
-
-
 <body>
-
   <!-- Top Navbar (desktop) -->
   <div class="top-navbar">
     <div class="contact-info">
@@ -65,16 +50,15 @@
 
   <!-- Header + Nawigacja -->
   <header>
-	<a href="index.html" class="logo" aria-label="Działkofert">
-	  <img
-		src="brand-assets/android-chrome-192x192.png"
-		srcset="brand-assets/android-chrome-192x192.png 1x,
-				brand-assets/android-chrome-512x512.png 2x"
-		alt="Działkofert" width="40" height="40"
-		loading="eager" decoding="async" fetchpriority="high"
-	  />
-	  <span>Działkofert</span>
-	</a>
+    <a href="index.html" class="logo" aria-label="Działkofert">
+      <img
+        src="brand-assets/logo.png"
+        srcset="brand-assets/android-chrome-192x192.png 1x,
+                brand-assets/android-chrome-512x512.png 2x"
+        alt="Działkofert"
+      />
+      <span>Działkofert</span>
+    </a>
 
     <nav class="desktop-nav">
       <a href="index.html" class="nav-link">Strona główna</a>
@@ -99,13 +83,9 @@
       <a href="oferty.html" class="nav-link">Oferty</a>
       <a href="dodaj.html" class="nav-link">Dodaj ofertę</a>
       <a href="#contact" class="nav-link">Kontakt</a>
-
-      <!-- Miejsce na elementy auth w menu mobilnym -->
       <div class="mobile-auth" id="mobileAuth" style="display:none;"></div>
     </nav>
   </header>
-
-
 
   <!-- Login Modal -->
   <div class="modal" id="loginModal">
@@ -191,12 +171,10 @@
         <i class="fas fa-plus me-1"></i> Dodaj ofertę
       </a>
     </div>
-    <div class="offers-grid" id="userOffers">
-      <!-- Oferty użytkownika -->
-    </div>
+    <div class="offers-grid" id="userOffers"></div>
   </div>
 
-  <!-- Sekcje strony (bez CSS wygląd będzie surowy) -->
+  <!-- Sekcje strony -->
   <section class="hero" id="home">
     <div class="container hero-content">
       <div class="hero-text">
@@ -311,58 +289,49 @@
     </div>
   </section>
 
+  <footer id="contact">
+    <div class="container">
+      <div class="footer-container">
+        <div class="footer-about">
+          <a href="index.html" class="footer-logo" aria-label="Działkofert">
+            <img
+              src="brand-assets/android-chrome-192x192.png"
+              srcset="brand-assets/android-chrome-192x192.png 1x,
+                      brand-assets/android-chrome-512x512.png 2x"
+              alt="Działkofert" width="40" height="40"
+              loading="eager" decoding="async" fetchpriority="high"
+            />
+            <span>Działkofert</span>
+          </a>
+          <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
+        </div>
 
+        <div class="footer-links">
+          <h3>Przydatne linki</h3>
+          <ul>
+            <li><a href="index.html">Strona główna</a></li>
+            <li><a href="oferty.html">Oferty</a></li>
+            <li><a href="dodaj.html">Dodaj ofertę</a></li>
+            <li><a href="#contact">Kontakt</a></li>
+          </ul>
+        </div>
 
-<footer id="contact">
-  <div class="container">
-    <div class="footer-container">
-      <div class="footer-about">
-
-			<a href="index.html" class="footer-logo" aria-label="Działkofert">
-	  <img
-		src="brand-assets/android-chrome-192x192.png"
-		srcset="brand-assets/android-chrome-192x192.png 1x,
-				brand-assets/android-chrome-512x512.png 2x"
-		alt="Działkofert" width="40" height="40"
-		loading="eager" decoding="async" fetchpriority="high"
-	  />
-	  <span>Działkofert</span>
-	</a>
-		
-		
-        <p>Bezpłatne ogłoszenia nieruchomości. Szybka sprzedaż działek bez zbędnych kosztów i formalności.</p>
+        <div class="footer-contact">
+          <h3>Kontakt</h3>
+          <p><i class="fas fa-envelope"></i> info@dzialkofert.pl</p>
+          <p><i class="fas fa-phone"></i> +48 123 456 789</p>
+        </div>
       </div>
 
-      <div class="footer-links">
-        <h3>Przydatne linki</h3>
-        <ul>
-          <li><a href="index.html">Strona główna</a></li>
-          <li><a href="oferty.html">Oferty</a></li>
-          <li><a href="dodaj.html">Dodaj ofertę</a></li>
-          <li><a href="#contact">Kontakt</a></li>
-        </ul>
-      </div>
-
-      <div class="footer-contact">
-        <h3>Kontakt</h3>
-        <p><i class="fas fa-envelope"></i> info@dzialkofert.pl</p>
-        <p><i class="fas fa-phone"></i> +48 123 456 789</p>
+      <div class="footer-bottom">
+        © 2025 Działkofert. Wszelkie prawa zastrzeżone.
       </div>
     </div>
+  </footer>
 
-    <div class="footer-bottom">
-      © 2025 Działkofert. Wszelkie prawa zastrzeżone.
-    </div>
-  </div>
-</footer>
-
-
-
-
-<script type="module" src="assets/js/auth.js?v=1"></script>
-<script type="module" src="assets/js/user-dashboard.js?v=1"></script>
-<script type="module" src="assets/js/index.js?v=1"></script>
-
-
+  <!-- Importy modułów -->
+  <script type="module" src="js/index.js"></script>
+  <script type="module" src="js/auth.js"></script>
+  <script type="module" src="js/dashboard.js"></script>
 </body>
 </html>

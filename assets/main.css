@@ -100,7 +100,7 @@ header{
 .logo{
   display:flex;align-items:center;gap:.625rem;font-weight:700;font-size:1.35rem;color:var(--darker);
 }
-.logo img{height:56px;width:auto;}        /* było 42px */
+.logo img{height:96px;width:auto;}        /* było 42px */
 .logo span{font-size:1.05rem;line-height:1.1;}
 
 .desktop-nav{display:flex;gap:1.5rem;}
@@ -238,14 +238,14 @@ header{
 .cta p{max-width:550px;margin:0 auto 2rem;opacity:.9;}
 
 /* ====== Footer ====== */
-footer{background:var(--darker);color:#fff;padding:2.5rem 0 1.25rem;margin-top:120px;}
+footer{background:var(--darker);color:#fff;padding:2.5rem 0 1.25rem}
 .footer-container{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1.5rem;margin-bottom:1.5rem;}
 
 /* POWIĘKSZONE LOGO W STOPCE */
 .footer-logo{
   display:flex;align-items:center;gap:.6rem;font-weight:700;font-size:1.35rem;color:#fff;
 }
-.footer-logo img{height:56px;width:auto;filter:brightness(0) invert(1);}  /* dodano wysokość */
+.footer-logo img{height:96px;width:auto;filter:brightness(0) invert(1);}  /* dodano wysokość */
 
 .footer-about p{opacity:.8;font-size:.9rem;line-height:1.6;margin-top:.5rem;}
 .footer-links h3,.footer-contact h3{font-size:1.1rem;margin-bottom:1rem;position:relative;display:inline-block;}
