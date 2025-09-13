@@ -1,8 +1,39 @@
-import { db } from "./auth.js";
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { auth, db } from "./auth.js";
+import {
+  collection, query, where, getDocs,
+  doc, getDoc, updateDoc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
 
 const userDashboard = document.getElementById("userDashboard");
 const userOffers    = document.getElementById("userOffers");
+
+// --- GLOBAL: udostępniam też w window (jeśli jednak chcesz użyć onclick gdzieś indziej)
+window.deletePlot = async (offerId, plotIndex, title = "działkę") => {
+  const ok = confirm(`Na pewno usunąć "${title}"?`);
+  if (!ok) return;
+
+  try {
+    const ref = doc(db, "propertyListings", offerId);
+    const snap = await getDoc(ref);
+    if (!snap.exists()) return alert("Oferta nie istnieje.");
+
+    // soft-delete: dashboard filtruje plot.mock !== false
+    const data  = snap.data();
+    const plots = Array.isArray(data.plots) ? data.plots.slice() : [];
+    if (!plots[plotIndex]) return alert("Nieprawidłowy indeks działki.");
+
+    plots[plotIndex] = { ...(plots[plotIndex] || {}), mock: false };
+    await updateDoc(ref, { plots });
+
+    const u = auth.currentUser;
+    if (u) await loadUserOffers(u.email || null, u.uid || null);
+    alert("Działka została usunięta.");
+  } catch (e) {
+    console.error("deletePlot:", e);
+    alert("Nie udało się usunąć działki.");
+  }
+};
 
 async function loadUserOffers(email, uid) {
   if (!userOffers) return;
@@ -57,6 +88,7 @@ async function loadUserOffers(email, uid) {
           const title = plot.Id || `Działka ${visibleIdx + 1}`;
           const detailsUrl = `oferta.html?id=${offerId}&plot=${originalIndex}`;
 
+          // Uwaga: BEZ onclick — używamy delegacji + data-*
           el.innerHTML = `
             <h3 class="offer-title">${title}</h3>
             <div class="offer-details">
@@ -71,17 +103,17 @@ async function loadUserOffers(email, uid) {
               <a class="btn btn-accent btn-sm" target="_blank" href="${detailsUrl}">
                 <i class="fas fa-info-circle"></i> Szczegóły
               </a>
-              <button class="btn btn-primary btn-sm" onclick="window.location.href='dodaj.html?edit=${offerId}&plot=${originalIndex}'">
+              <button class="btn btn-primary btn-sm" data-action="edit" data-offer-id="${offerId}" data-plot-index="${originalIndex}">
                 <i class="fas fa-edit"></i> Edytuj
               </button>
-              <button class="btn btn-secondary btn-sm" onclick="deletePlot && deletePlot('${offerId}', ${originalIndex}, '${(title||'').replace(/'/g,"\\'")}')">
+              <button class="btn btn-secondary btn-sm" data-action="delete" data-offer-id="${offerId}" data-plot-index="${originalIndex}" data-title="${(title||'').replace(/"/g,"&quot;")}">
                 <i class="fas fa-trash"></i> Usuń
               </button>
             </div>
           `;
 
           el.addEventListener("click", (e) => {
-            if (e.target.closest(".offer-actions")) return;
+            if (e.target.closest(".offer-actions")) return; // klik w przyciski – osobno obsługiwany
             if (window.focusOfferOnMap) window.focusOfferOnMap(offerId, originalIndex);
           });
 
@@ -98,10 +130,52 @@ async function loadUserOffers(email, uid) {
   }
 }
 
-// Reakcja na login/logout
+// --- Delegacja zdarzeń dla edycji/usuwania (bez onclick)
+if (userOffers) {
+  userOffers.addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-action]");
+    if (!btn) return;
+
+    const action = btn.dataset.action;
+    const offerId = btn.dataset.offerId;
+    const plotIndex = Number(btn.dataset.plotIndex || 0);
+    const title = btn.dataset.title || "działkę";
+
+    if (action === "edit") {
+      window.location.href = `dodaj.html?edit=${offerId}&plot=${plotIndex}`;
+    } else if (action === "delete") {
+      window.deletePlot(offerId, plotIndex, title);
+    }
+  });
+}
+
+// --- POKAŻ DASHBOARD od razu, jeśli user już jest (po refreshu)
+function showDashboardForCurrentUser() {
+  const u = auth.currentUser;
+  if (u) {
+    if (userDashboard) userDashboard.style.display = "block";
+    loadUserOffers(u.email || null, u.uid || null);
+  }
+}
+
+// 1) natychmiastowa próba (gdy stan już dostępny)
+showDashboardForCurrentUser();
+
+// 2) pewniak – reaguje zawsze (także gdy stan pojawi się chwilę później)
+onAuthStateChanged(auth, (user) => {
+  if (user) {
+    if (userDashboard) userDashboard.style.display = "block";
+    loadUserOffers(user.email || null, user.uid || null);
+  } else {
+    if (userDashboard) userDashboard.style.display = "none";
+    if (userOffers) userOffers.innerHTML = "";
+  }
+});
+
+// 3) zostawiamy też wsparcie dla custom eventów z auth.js (działa bez refreshu)
 window.addEventListener("auth:login", (ev) => {
-  userDashboard && (userDashboard.style.display = "block");
   const u = ev.detail.user;
+  if (userDashboard) userDashboard.style.display = "block";
   loadUserOffers(u.email || null, u.uid || null);
 });
 window.addEventListener("auth:logout", () => {
