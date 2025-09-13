@@ -6,11 +6,9 @@ import {
   GoogleAuthProvider, signInWithPopup, signInWithRedirect,
   setPersistence, browserLocalPersistence, browserSessionPersistence, inMemoryPersistence
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import {
-  getFirestore, doc, setDoc, getDoc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-/* ------------------ Firebase ------------------ */
+/* -------- Firebase -------- */
 const firebaseConfig = {
   apiKey: "AIzaSyBdhMIiqetOfDGP85ERxtgwn3AXR50pBcE",
   authDomain: "base-468e0.firebaseapp.com",
@@ -19,24 +17,28 @@ const firebaseConfig = {
   messagingSenderId: "829161895559",
   appId: "1:829161895559:web:d832541aac05b35847ea22"
 };
-
 const app  = getApps().length ? getApp() : initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db   = getFirestore(app);
 auth.languageCode = 'pl';
 
-/* ------------------ UI helpers ------------------ */
+/* -------- Helpers -------- */
 function toast(msg){ try{ (window.showToast ? window.showToast(msg,'info') : console.log('[TOAST]', msg)); }catch{} }
 const openModal  = (m) => m && (m.style.display = 'flex');
 const closeModal = (m) => m && (m.style.display = 'none');
 
-/* Wstrzyknięcie reguł, które PRZEBIJAJĄ inline style w desktop top-navbar */
+/* CSS dla topbara (desktop): wymuszenie przełączania */
 (function injectTopbarAuthCSS(){
   const css = `
     .top-navbar #authButtons { display: flex; }
     .top-navbar #userMenu    { display: none; }
     body.auth .top-navbar #authButtons { display: none !important; }
     body.auth .top-navbar #userMenu    { display: flex !important; }
+
+    /* --- WYŚRODKOWANIE TYTUŁÓW --- */
+    .section-title, .section-title h2 { text-align: center; }
+    /* przypadek: „Moje oferty” we flex headerze */
+    .user-header h2 { margin: 0 auto; text-align: center; }
   `;
   const s = document.createElement('style');
   s.setAttribute('data-auth-topbar-css','true');
@@ -44,7 +46,7 @@ const closeModal = (m) => m && (m.style.display = 'none');
   document.head.appendChild(s);
 })();
 
-/* ------------------ DOM refs (pozwalamy na brak elementów) ------------------ */
+/* -------- DOM refs -------- */
 const $authButtons = Array.from(document.querySelectorAll('#authButtons'));
 const $userMenus   = Array.from(document.querySelectorAll('#userMenu'));
 const $accountBtns = Array.from(document.querySelectorAll('#accountBtn'));
@@ -67,47 +69,35 @@ const registerForm  = document.getElementById('registerForm');
 const googleBtnRegister = document.getElementById('googleLoginBtn');
 const googleBtnLogin    = document.getElementById('googleLoginBtnLogin');
 
-// Mobile links
 const loginLink    = document.getElementById('loginLink');
 const registerLink = document.getElementById('registerLink');
 const navMenu      = document.querySelector('.nav-menu');
 
-/* ------------------ Persistence fallback ------------------ */
+/* -------- Persistence fallback -------- */
 try { await setPersistence(auth, browserLocalPersistence); }
 catch { try { await setPersistence(auth, browserSessionPersistence); }
 catch { await setPersistence(auth, inMemoryPersistence); } }
 
-/* ------------------ Providers ------------------ */
+/* -------- Providers -------- */
 const googleProvider = new GoogleAuthProvider();
 googleProvider.setCustomParameters({ prompt: 'select_account' });
 
-/* ------------------ Domain warning (opcjonalne) ------------------ */
+/* -------- Domain warning (opcjonalne) -------- */
 const domainWarning = document.getElementById('domainWarning');
 const okDomains = ['localhost','127.0.0.1','trainingtwenty5.github.io','twojadomena.pl'];
 if (domainWarning && !okDomains.includes(location.hostname)) domainWarning.style.display = 'block';
 
-/* ------------------ Modals open/close ------------------ */
+/* -------- Modals -------- */
 loginBtn    && loginBtn.addEventListener('click', () => openModal(loginModal));
 registerBtn && registerBtn.addEventListener('click', () => openModal(registerModal));
-
-loginLink && loginLink.addEventListener('click', (e)=>{
-  e.preventDefault(); navMenu?.classList.remove('active');
-  document.body.classList.remove('menu-open');
-  openModal(loginModal);
-});
-registerLink && registerLink.addEventListener('click', (e)=>{
-  e.preventDefault(); navMenu?.classList.remove('active');
-  document.body.classList.remove('menu-open');
-  openModal(registerModal);
-});
-
+loginLink && loginLink.addEventListener('click', (e)=>{ e.preventDefault(); navMenu?.classList.remove('active'); document.body.classList.remove('menu-open'); openModal(loginModal); });
+registerLink && registerLink.addEventListener('click', (e)=>{ e.preventDefault(); navMenu?.classList.remove('active'); document.body.classList.remove('menu-open'); openModal(registerModal); });
 switchToRegister && switchToRegister.addEventListener('click', (e)=>{ e.preventDefault(); closeModal(loginModal);  openModal(registerModal); });
 switchToLogin    && switchToLogin.addEventListener('click',    (e)=>{ e.preventDefault(); closeModal(registerModal); openModal(loginModal); });
-
 closeBtns.forEach(b => b.addEventListener('click', () => closeModal(b.closest('.modal'))));
 window.addEventListener('click', (e) => { if (e.target.classList?.contains('modal')) closeModal(e.target); });
 
-/* ------------------ Errors ------------------ */
+/* -------- Errors -------- */
 const niceErr = (err) => {
   switch (err?.code) {
     case 'auth/invalid-email': return 'Nieprawidłowy adres e-mail.';
@@ -123,7 +113,7 @@ const niceErr = (err) => {
   }
 };
 
-/* ------------------ E-mail/hasło ------------------ */
+/* -------- Email/hasło -------- */
 loginForm && loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
   const email = document.getElementById('loginEmail').value.trim();
@@ -151,7 +141,7 @@ registerForm && registerForm.addEventListener('submit', async (e) => {
   } catch (err) { toast(niceErr(err)); }
 });
 
-/* ------------------ Google ------------------ */
+/* -------- Google -------- */
 async function signInWithGoogleSmart() {
   if (!['http:', 'https:'].includes(location.protocol))
     return toast('Uruchom stronę przez http/https (nie file://).');
@@ -174,47 +164,48 @@ async function signInWithGoogleSmart() {
   btn && btn.addEventListener('click', (e)=>{ e.preventDefault(); signInWithGoogleSmart(); })
 );
 
-/* ------------------ UI state ------------------ */
+/* -------- Ładowanie ofert z retry (NAPRAWA) -------- */
+function tryLoadUserOffers(email, uid, retries = 24) { // ~6s (24*250ms)
+  if (typeof window.loadUserOffers === 'function') {
+    try { window.loadUserOffers(email, uid); } catch(e){ console.warn('[loadUserOffers]', e); }
+    return;
+  }
+  if (retries > 0) setTimeout(() => tryLoadUserOffers(email, uid, retries - 1), 250);
+}
+
+/* -------- UI state -------- */
 function applyAuthUI(user) {
   const isAuth = !!user;
 
-  // 1) klasa na <body> (napędza nasze CSS z !important)
   document.body.classList.toggle('auth', isAuth);
 
-  // 2) fallback inline (gdyby ktoś nadpisał styles)
   $authButtons.forEach(el => { if (!el) return; el.style.display = isAuth ? 'none' : 'flex'; });
   $userMenus.forEach(el   => { if (!el) return; el.style.display = isAuth ? 'flex' : 'none'; });
   $userDash.forEach(el    => { if (!el) return; el.style.display = isAuth ? 'block' : 'none'; });
 
-  // 3) podpis „Moje konto”
   const label = isAuth ? (user.displayName || user.email || 'Moje konto') : 'Moje konto';
   $accountBtns.forEach(btn => { if (!btn) return; btn.innerHTML = `<i class="fas fa-user me-1"></i> ${label}`; });
 
-  // 4) udostępnij globalnie (np. do loadUserOffers)
   window.currentUserEmail = isAuth ? (user.email || null) : null;
   window.currentUserUid   = isAuth ? (user.uid   || null) : null;
 
-  // 5) załaduj oferty użytkownika (jeśli funkcja istnieje na stronie)
-  if (isAuth && typeof window.loadUserOffers === 'function') {
-    try { window.loadUserOffers(window.currentUserEmail, window.currentUserUid); }
-    catch(e){ console.warn('[loadUserOffers]', e); }
-  }
+  if (isAuth) tryLoadUserOffers(window.currentUserEmail, window.currentUserUid);
 }
 
-/* natychmiastowa próba ustawienia UI po załadowaniu DOM */
+/* start na starcie strony */
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', () => applyAuthUI(auth.currentUser));
 } else {
   applyAuthUI(auth.currentUser);
 }
 
-/* i pełna synchronizacja przez Firebase */
+/* i pełna synchronizacja */
 onAuthStateChanged(auth, (user) => applyAuthUI(user));
 
-/* ------------------ Logout ------------------ */
+/* -------- Logout -------- */
 logoutBtn && logoutBtn.addEventListener('click', async () => {
   try { await signOut(auth); } catch(_) {}
 });
 
-/* ------------------ Exports ------------------ */
+/* -------- Exports -------- */
 export { auth, db };

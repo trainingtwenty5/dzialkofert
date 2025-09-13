@@ -19,3 +19,5 @@ window.loadUserOffers = async function(email, uid){
       </div>
     </div>`;
 };
+
+window.loadUserOffers = loadUserOffers;
